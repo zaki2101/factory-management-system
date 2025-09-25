@@ -1,0 +1,245 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* НОВЫЕ СТИЛИ ДЛЯ AG-GRID  */
+.ag-theme-quartz {
+  /* Общие настройки линий */
+  --ag-header-column-separator-display: block;
+  --ag-header-column-separator-height: 70%;
+  --ag-header-column-separator-width: 1px;
+  --ag-header-column-separator-color: #c0c0c0;
+  --ag-cell-horizontal-border: 1px solid #c0c0c0; /* Теперь такая же как в заголовке */
+}
+
+/* Делаем линии одинаковыми */
+.ag-theme-quartz .ag-header-cell {
+  border-right: 1px solid #c0c0c0; /* Такая же толщина */
+}
+
+.ag-theme-quartz .ag-cell {
+  border-right: 1px solid #c0c0c0; /* Такая же толщина */
+}
+
+
+/* КОНТЕЙНЕР ШАПКИ */
+.header {
+  display: flex;                 /* Включаем flex-расположение */
+  justify-content: space-between; /* Распределяем элементы по ширине */
+  align-items: center;           /* Выравниваем по вертикали по центру */
+  padding: 10px;                /* Внутренние отступы 20px со всех сторон */
+  background-color: #f5f5f5;     /* Светло-серый фон */
+  border-bottom: 1px solid #ddd; /* Серая линия под шапкой */
+  margin-bottom: 5px; /* ← Отступ снизу */
+}
+
+/* КНОПКА ДОБАВЛЕНИЯ */
+.add-button {
+  background-color: hsl(196, 77%, 69%);     /*  цвет фона */
+  color: #333;                  /* цвет текста */
+  padding: 10px 20px;            /* Внутренние отступы: 10px сверху/снизу, 20px слева/справа */
+  border: none;                  /* Убираем стандартную рамку кнопки */
+  border-radius: 5px;            /* Закругляем углы на 5px */
+  cursor: pointer;               /* Меняем курсор на указатель при наведении */
+  font-size: 16px;               /* Размер шрифта 16px */
+}
+
+/* СОСТОЯНИЕ ПРИ НАВЕДЕНИИ НА КНОПКУ */
+.add-button:hover {
+  background-color: #617cec;     
+}
+
+/* ФОН МОДАЛЬНОГО ОКНА (будет в AddFactoryModal) */
+.modal-overlay {
+  position: fixed;               /* Фиксированное позиционирование */
+  top: 0;                        /* Прижимаем к верху */
+  left: 0;                       /* Прижимаем к левому краю */
+  right: 0;                      /* Прижимаем к правому краю */
+  bottom: 0;                     /* Прижимаем к низу */
+  background-color: rgba(0, 0, 0, 0.7); /* Полупрозрачный черный фон */
+  display: flex;                 /* Включаем flex-расположение */
+  justify-content: center;       /* Выравниваем по горизонтали по центру */
+  align-items: center;           /* Выравниваем по вертикали по центру */
+  z-index: 1000; /* ← Поверх всего */
+}
+
+/* КОНТЕЙНЕР МОДАЛЬНОГО ОКНА */
+.modal-content {
+  background-color: white;     /* ← Непрозрачный белый фон */
+  padding: 30px;                 /* Внутренние отступы 30px */
+  border-radius: 10px;           /* Закругляем углы на 10px */
+  width: 500px;                  /* Ширина окна 500px */
+  max-width: 90%;                /* Но не более 90% ширины экрана */
+  max-height: 80%;               /* И не более 80% высоты экрана */
+  overflow-y: auto;              /* Добавляем прокрутку если контент не помещается */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* ← Тень для объема */
+}
+
+/* Заголовок с меньшим отступом */
+.modal-content h3 {
+  margin-top: 0; /* ← Убираем верхний отступ */
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+
+/* СТРОКИ ФОРМЫ (для расположения полей в горизонтально) */
+.form-row {
+  display: flex;                 /* Включаем flex-расположение */
+  gap: 10px;                     /* Расстояние между элементами 10px */
+  margin-bottom: 15px;           /* Отступ снизу 15px */
+}
+
+/* ПОЛЯ ВВОДА */
+.form-row input {
+  flex: 1;                       /* Растягиваем на все доступное пространство */
+  padding: 8px;                  /* Внутренние отступы 8px */
+  border: 1px solid #ccc;        /* Серая рамка 1px */
+  border-radius: 4px;            /* Закругление углов 4px */
+}
+
+/* Вертикальная форма */
+.form-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.form-vertical input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-vertical input:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+/* Контейнер для кнопок */
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+
+/* Для ошибок */
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 15px;
+  margin: 10px;
+  border-radius: 5px;
+  border-left: 4px solid #c62828;
+}
+
+.loading {
+  text-align: center;
+  padding: 50px;
+  font-size: 18px;
+  color: #666;
+}
+
+.error {
+  text-align: center;
+  padding: 50px;
+  color: #c62828;
+  background-color: #ffebee;
+  border-radius: 5px;
+  margin: 20px;
+}
+
+/* Стили для модального окна сотрудников */
+.employees-container {
+  margin-top: 20px;
+}
+
+.employees-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.add-employee-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.employees-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.employees-table th,
+.employees-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.employees-table th {
+  background-color: #f2f2f2;
+}
+
+.edit-btn, .delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin: 0 2px;
+}
+
+.no-data {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+/* Для прокрутки таблицы */
+.employees-table {
+  max-height: 400px;
+  overflow-y: auto;
+}
