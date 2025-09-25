@@ -1,0 +1,22 @@
+
+Итог по файлам бэкенда:
+database.py - подключение к БД и настройка сессий
+models.py - описание структуры таблиц (SQLAlchemy модели)
+schemas.py - валидация данных (Pydantic модели)
+crud.py - функции для работы с БД (CRUD операции)
+main.py - ядро приложения (роуты и зависимоти)
+
+
+✅ Сервер на FastAPI (localhost:8000)
+✅ Автоматическая документация Swagger (/docs)
+✅ База данных SQLite с таблицей items
+✅ CORS для фронтенда
+✅ 2 API endpoint:
+ - GET /items/ - с пагинацией
+ - POST /items/ - создание записей
+ - GET /all-items/ - новый! все записи без лимита
+
+Запустить бэкенд
+cd backend
+uvicorn main:app --reload
+
