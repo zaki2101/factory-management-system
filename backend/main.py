@@ -1,10 +1,24 @@
 # ядро приложения (роуты и зависимоти) - обработка HTTP запросов
 
+# Стандартные библиотеки Python
+from datetime import datetime
+import io
+from typing import Optional
+
+# FastAPI и зависимости
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware  
+#from fastapi.responses import FileResponse
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
+
+# Сторонние библиотеки
+from openpyxl import Workbook
+
+# Наши модули
 import models, schemas, crud
 from database import SessionLocal, engine
+
 
 
 # Создаем таблицы в базе данных
@@ -16,9 +30,11 @@ app = FastAPI()
 # разрешаем запросы от React
 app.add_middleware(
     CORSMiddleware,
+    #allow_origins=["*"],
     allow_origins=["http://localhost:3000"],  # Адрес React-приложения
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  
+    allow_methods=["*"], 
+    # allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  
     allow_headers=["*"],  # Разрешаем все заголовки
 )
 
@@ -105,6 +121,92 @@ def delete_factory(factory_id: int, db: Session = Depends(get_db)):
     crud.delete_factory(db, factory_id=factory_id)
     return {"message": "Factory deleted successfully"}
 
+
+# эндпоинт для экспорта предприятий в файл EXCEL
+@app.get("/export/factories/excel")
+def export_factories_to_excel(
+    start_date: Optional[str] = None,  # ← Параметры фильтрации
+    end_date: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    
+    """
+    Экспорт фабрик в Excel с поддержкой фильтрации по дате
+    """
+    try:
+        print(f"Экспорт с фильтрами: start_date={start_date}, end_date={end_date}")
+        
+        # 1. Получаем данные из базы с учетом фильтров
+        query = db.query(models.Factory) # аналогично - "SELECT * FROM factories"
+
+        # Применяем фильтры по дате, если они указаны
+        if start_date:
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+            query = query.filter(models.Factory.date_created >= start_date_obj)
+            # запрос - "SELECT * FROM factories WHERE date_created >= '2024-01-01'
+
+        # Добавляем второй фильтр    
+        if end_date: 
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+            query = query.filter(models.Factory.date_created <= end_date_obj)
+            # запрос - "SELECT * FROM factories WHERE date_created >= '2024-01-01' AND date_created <= '2024-01-31'"
+        
+        factories = query.all() # Выполняет финальный SQL и возвращает результаты
+        print(f"Найдено фабрик после фильтрации: {len(factories)}")
+        
+        # 2. Создаем Excel книгу в памяти
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Фабрики"
+    
+        # 3. Заголовки колонок
+        headers = [ "Название", "ИНН",  "Адрес", "Город", "Менеджер", "Вид деятельности",   
+                    "ОКВЭД", "Сайт", "Email", "Телефоны", "Доп. Контакты", "К-во сотр", 
+                    "Комментарий 1", "Комментарий 2", "Комментарий 3", "Дата записи"]
+        ws.append(headers)
+    
+        # 4. Данные
+        for factory in factories:
+            ws.append([
+                factory.name,
+                factory.inn,
+                factory.address,
+                factory.city or "",
+                factory.manager,
+                factory.type_factory,
+                factory.okved,
+                factory.website or "",
+                factory.emails or "",
+                factory.phones or "",
+                factory.add_contacts or "",
+                factory.n_empl or "",
+                factory.comment1 or "",
+                factory.comment2 or "",
+                factory.comment3 or "",
+                str(factory.date_created) if factory.date_created else ""
+            ])
+        # 5. Сохраняем в память (не в файл на сервере)
+        excel_buffer = io.BytesIO()
+        wb.save(excel_buffer)
+        excel_buffer.seek(0)  # Перемещаемся в начало буфера
+
+        # 6. Формируем имя файла с учетом фильтров
+        filename = f"fabriki_export_{datetime.now().strftime('%Y-%m-%d')}"
+        if start_date or end_date:
+            filename += "_filtered"
+        filename += ".xlsx"
+    
+        # 7. Возвращаем файл для скачивания
+        return Response(
+            content=excel_buffer.getvalue(),
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+    
+    except Exception as e:
+        print(f"ОШИБКА В ЭКСПОРТЕ: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 ##########################################
 
 # ТАБЛИЦА "СОТРУДНИКИ"
@@ -176,3 +278,5 @@ def delete_employee(employee_id: int, db: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=404, detail="Employee not found")
     return {"message": "Employee deleted successfully"}
+
+

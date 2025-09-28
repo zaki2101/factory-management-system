@@ -70,18 +70,18 @@
 
 /* КНОПКА ДОБАВЛЕНИЯ */
 .add-button {
-  background-color: hsl(196, 77%, 69%);     /*  цвет фона */
-  color: #333;                  /* цвет текста */
-  padding: 10px 20px;            /* Внутренние отступы: 10px сверху/снизу, 20px слева/справа */
+  background: #2196F3;         /*  цвет фона */
+  color: white;                /* цвет текста */
+  padding: 10px 15px;            /* Внутренние отступы: 10px сверху/снизу, 20px слева/справа */
   border: none;                  /* Убираем стандартную рамку кнопки */
-  border-radius: 5px;            /* Закругляем углы на 5px */
+  border-radius: 4px;            /* Закругляем углы на 5px */
   cursor: pointer;               /* Меняем курсор на указатель при наведении */
-  font-size: 16px;               /* Размер шрифта 16px */
+  font-size: 14px;               /* Размер шрифта 16px */
 }
 
 /* СОСТОЯНИЕ ПРИ НАВЕДЕНИИ НА КНОПКУ */
 .add-button:hover {
-  background-color: #617cec;     
+  background: #1976D2;   
 }
 
 /* ФОН МОДАЛЬНОГО ОКНА (будет в AddFactoryModal) */
@@ -242,4 +242,24 @@
 .employees-table {
   max-height: 400px;
   overflow-y: auto;
+}
+
+/* Для кнопок экспорта файла */
+.export-button {
+  background: #2196F3;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.export-button:hover {
+  background: #1976D2;
+}
+
+.export-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
