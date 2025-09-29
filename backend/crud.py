@@ -113,3 +113,50 @@ def delete_employee(db: Session, employee_id: int):
         db.commit()
         return True
     return False
+
+##############################################
+# ТАБЛИЦА ВИДЫ ДЕЯТЕЛЬНОСТИ
+
+# Функции для работы с видами деятельности
+def get_activity_types(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.ActivityType).offset(skip).limit(limit).all()
+
+def get_activity_type_by_id(db: Session, activity_type_id: int):
+    return db.query(models.ActivityType).filter(models.ActivityType.id == activity_type_id).first()
+
+def create_activity_type(db: Session, activity_type: schemas.ActivityTypeCreate):
+    db_activity_type = models.ActivityType(**activity_type.dict())
+    db.add(db_activity_type)
+    db.commit()
+    db.refresh(db_activity_type)
+    return db_activity_type
+
+def delete_activity_type(db: Session, activity_type_id: int):
+    db_activity_type = db.query(models.ActivityType).filter(models.ActivityType.id == activity_type_id).first()
+    if db_activity_type:
+        db.delete(db_activity_type)
+        db.commit()
+        return True
+    return False
+
+# Обновить данные вида деятельности
+def update_activity_type(db: Session, activity_type_id: int, activity_type_data: schemas.ActivityTypeCreate):
+    db_activity_type = db.query(models.ActivityType).filter(models.ActivityType.id == activity_type_id).first()
+    if not db_activity_type:
+        return None
+    
+    # Проверяем уникальность названия (кроме текущей записи)
+    if activity_type_data.name != db_activity_type.name:
+        existing = db.query(models.ActivityType).filter(
+            models.ActivityType.name == activity_type_data.name
+        ).first()
+        if existing:
+            return None  # Название уже занято
+    
+    # Обновляем поля
+    for field, value in activity_type_data.dict().items():
+        setattr(db_activity_type, field, value)
+    
+    db.commit()
+    db.refresh(db_activity_type)
+    return db_activity_type

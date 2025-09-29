@@ -50,7 +50,9 @@ def get_db():
     finally:
         db.close() # Закрывает сессию и возвращает соединение в пул
 
+#######################################################
 # ТАБЛИЦА "ПРЕДПРИЯТИЯ"
+
 # GET все записи с лимитом
 @app.get("/factories/", response_model=list[schemas.Factory])
 def read_factories(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -279,4 +281,76 @@ def delete_employee(employee_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Employee not found")
     return {"message": "Employee deleted successfully"}
 
+########################################################
+# ТАБЛИЦА ВИДЫ ДЕЯТЕЛЬНОСТИ
 
+# СПРАВОЧНИК "ВИДЫ ДЕЯТЕЛЬНОСТИ"
+
+# GET - получить все виды деятельности
+@app.get("/activity-types/", response_model=list[schemas.ActivityType])
+def read_activity_types(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    Получить список всех видов деятельности
+    """
+    activity_types = crud.get_activity_types(db, skip=skip, limit=limit)
+    return activity_types
+
+
+# POST - создать новый вид деятельности
+@app.post("/activity-types/", response_model=schemas.ActivityType)
+def create_activity_type(
+    activity_type: schemas.ActivityTypeCreate, 
+    db: Session = Depends(get_db)
+):
+    """
+    Создать новый вид деятельности
+    """
+    # Проверяем уникальность названия
+    db_activity_type = db.query(models.ActivityType).filter(
+        models.ActivityType.name == activity_type.name
+    ).first()
+    
+    if db_activity_type:
+        raise HTTPException(
+            status_code=400, 
+            detail="Вид деятельности с таким названием уже существует"
+        )
+    
+    return crud.create_activity_type(db=db, activity_type=activity_type)
+
+
+# DELETE - удалить вид деятельности
+@app.delete("/activity-types/{activity_type_id}")
+def delete_activity_type(activity_type_id: int, db: Session = Depends(get_db)):
+    """
+    Удалить вид деятельности по ID
+    """
+    success = crud.delete_activity_type(db, activity_type_id=activity_type_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Activity type not found")
+    return {"message": "Activity type deleted successfully"}
+
+
+# PUT - обновить вид деятельности
+@app.put("/activity-types/{activity_type_id}", response_model=schemas.ActivityType)
+def update_activity_type(
+    activity_type_id: int,
+    activity_type_data: schemas.ActivityTypeCreate,
+    db: Session = Depends(get_db)
+):
+    """
+    Обновить вид деятельности по ID
+    """
+    updated_activity_type = crud.update_activity_type(
+        db, 
+        activity_type_id=activity_type_id, 
+        activity_type_data=activity_type_data
+    )
+    
+    if updated_activity_type is None:
+        raise HTTPException(
+            status_code=404, 
+            detail="Activity type not found or name already exists"
+        )
+    
+    return updated_activity_type

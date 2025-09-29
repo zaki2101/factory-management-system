@@ -5,6 +5,7 @@ import FactoryTable from './FactoryTable';
 import AddFactoryModal from './AddFactoryModal'; // подключение компонента модального окна
 import ExportModal from './ExportModal'; // подключение модального окна для сохранения предприятий в файл
 
+import ActivityTypesModal from './ActivityTypesModal'; // подключение модального окна видов деятельности
 
 import { Factory } from './FactoryTable';
 import './App.css';
@@ -17,6 +18,15 @@ function App() {
 
   // Состояние для модального окна экспорта файла предприятий
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+  // Состояние модального окна видов деятельности
+  const [isActivityTypesModalOpen, setIsActivityTypesModalOpen] = useState(false); 
+  
+  // Функция открытия модального окна справочника видов деятельности
+  const handleOpenActivityTypesModal = () => {
+    setIsActivityTypesModalOpen(true);
+  };
+
 
   const [isLoading] = useState(false);
   const [error] = useState<string | null>(null);
@@ -105,9 +115,18 @@ function App() {
         </button>
 
         {/* кнопка экспорта файла - открывает модальное окно */}
-          <button className="export-button" onClick={handleOpenExportModal} >
-            💾 Сохранить в Excel
-          </button>
+        <button className="export-button" onClick={handleOpenExportModal} >
+          💾 Сохранить в Excel
+        </button>
+
+        {/* кнопка справочника видов деятельности - открывает модальное окно */}
+        <button 
+          className="activity-types-button"
+          onClick={handleOpenActivityTypesModal}
+          title="Справочник видов деятельности"
+        >
+          Виды деятельности
+        </button>
       </div>
       
       <FactoryTable />
@@ -162,6 +181,13 @@ function App() {
           onClose={handleCloseExportModal}
           onExport={handleExportWithFilters}
           isLoading={isLoading}
+        />
+      )}
+
+      {/* модальное окно справочника видов деятельности */}
+      {isActivityTypesModalOpen && (
+        <ActivityTypesModal
+          onClose={() => setIsActivityTypesModalOpen(false)}
         />
       )}
     </div>

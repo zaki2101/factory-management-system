@@ -62,9 +62,22 @@ class EmployeeCreate(BaseModel):
     comment2: Optional[str] = None
     comment3: Optional[str] = None
 
+
 # Схема для возврата данных о сотруднике из БД
 class Employee(EmployeeCreate):
     id: int            # Добавляем автоматический ID
     
     class Config:
         from_attributes = True  # Ранее called ORM mode
+
+
+class ActivityTypeCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+
+
+class ActivityType(ActivityTypeCreate):
+    id: int
+    
+    class Config:
+        from_attributes = True

@@ -46,6 +46,14 @@ class Employee(Base):  # Таблица "Сотрудники"
     comment3 = Column(String, nullable=True)    # Комментарий 3
 
 
+class ActivityType(Base):  # Таблица "Виды деятельности"
+    __tablename__ = "activity_types"  # Название таблицы
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True, nullable=False)  # Название вида деятельности
+    description = Column(String, nullable=True)         # Описание 
+    
+
 
     '''
     primary_key=

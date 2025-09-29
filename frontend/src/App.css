@@ -263,3 +263,23 @@
   background: #ccc;
   cursor: not-allowed;
 }
+
+/* Для кнопки Виды деятельности */
+.activity-types-button {
+  background: #afe1ea;
+  color: black;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.activity-types-button:hover {
+  background: #70d7e9;
+}
+
+.activity-types-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
