@@ -1,5 +1,5 @@
 // хук для управления состоянием (xтобы отслеживать, открыто ли модальное окно)
-import React, { useState } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import FactoryTable from './FactoryTable';
 
 import AddFactoryModal from './AddFactoryModal'; // подключение компонента модального окна
@@ -19,17 +19,43 @@ function App() {
   // Состояние для модального окна экспорта файла предприятий
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
+  const [isLoading] = useState(false);
+  const [error] = useState<string | null>(null);
+
   // Состояние модального окна видов деятельности
   const [isActivityTypesModalOpen, setIsActivityTypesModalOpen] = useState(false); 
   
+  /* **********************************
+  Виды деятельности выгружаются при старте, простая реализация, т.к
+  справочник редко корректируется, сохраняем только названия
+  */
+  const [activityTypeNames, setActivityTypeNames] = useState<string[]>([]);
+
+  const fetchActivityTypes = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/activity-types/');
+      if (response.ok) {
+        const data = await response.json();
+        // ↓↓↓ Извлекаем ТОЛЬКО названия ↓↓↓
+        const names = data.map((activity: any) => activity.name);
+        setActivityTypeNames(names);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки видов деятельности:', error);
+    }
+  };
+
+  // Загружаем один раз при запуске
+  useEffect(() => {
+    fetchActivityTypes();
+  }, []);
+
+
   // Функция открытия модального окна справочника видов деятельности
   const handleOpenActivityTypesModal = () => {
     setIsActivityTypesModalOpen(true);
   };
 
-
-  const [isLoading] = useState(false);
-  const [error] = useState<string | null>(null);
   
   // Функция открытия модального окна экспорта предприятий
   const handleOpenExportModal = () => {
@@ -40,6 +66,10 @@ function App() {
   const handleCloseExportModal = () => {
     setIsExportModalOpen(false);
   };
+
+
+
+
 
   // Функция для экспорта в Excel предприятий (с фильтрами)
   const handleExportWithFilters = async (filters: { startDate: string; endDate: string }) => {
@@ -93,6 +123,7 @@ function App() {
   };
 
 
+
   // onClick={() => setIsAddModalOpen(true)} меняет состояние на true → открывает модальное окно
   return (
     <div className="App">
@@ -129,7 +160,10 @@ function App() {
         </button>
       </div>
       
-      <FactoryTable />
+      
+      <FactoryTable activityTypeNames={activityTypeNames} />
+      {/* activityTypeNames - список видов деятельности*/}
+
       {/* Модальное окно добавления фабрики */}
       {isAddModalOpen && (
         /* Условный рендеринг модального окна
@@ -143,7 +177,7 @@ function App() {
           4. React перерисовывает компонент → модальное окно исчезает
         */
         <AddFactoryModal
-
+          activityTypeNames={activityTypeNames}  // ← Только названия
           onClose={() => !isLoading && setIsAddModalOpen(false)} 
           onSave={async (newFactory: Omit<Factory, 'id'> ) => {
             try {

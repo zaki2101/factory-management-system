@@ -13,6 +13,9 @@ import { ModuleRegistry, AllCommunityModule} from 'ag-grid-community';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
+interface FactoryTableProps {
+  activityTypeNames: string[];  // Пропс со списком названий видов деятельности
+}
 
 interface Factory {
   id: number;
@@ -36,7 +39,7 @@ interface Factory {
 }
 
 
-const FactoryTable: React.FC = () => {
+const FactoryTable: React.FC<FactoryTableProps> = ({ activityTypeNames }) => {
   // хук состояния React
   // rowData — переменная, которая хранит текущие данные таблицы 
   // setRowData — функция для обновления этих данных
@@ -178,7 +181,6 @@ const saveChanges = async (data: any) => {
     return <div className="error">Ошибка: {error}</div>;
   }
 
-  const typeFactoryValues = ['ПРОЕКТИРОВАНИЕ', 'ХИМИЯ', 'ФАРМАЦЕВТИКА'];
 
   const columnDefs: ColDef[] = [
     //{ field: 'id', headerName: 'ID', width: 80 },
@@ -200,12 +202,14 @@ const saveChanges = async (data: any) => {
 
     { field: 'manager', headerName: 'Менеджер', width: 120, sortable: true, filter: true },
 
-    { field: 'type_factory', headerName: 'ВИД ДЕЯТЕЛЬНОСТИ', width: 100, sortable: true, filter: true,
-            cellEditor: 'agSelectCellEditor', // ← Выпадающий список
-            cellEditorParams: {
-              values: typeFactoryValues // ← Значения для выбора
-            },
-     },
+    {
+      field: 'type_factory', 
+      headerName: 'ВИД ДЕЯТЕЛЬНОСТИ', 
+      cellEditor: 'agSelectCellEditor',
+      cellEditorParams: {
+      values: activityTypeNames  // ← Уже готовый массив строк
+      },
+    },
 
     { field: 'city', headerName: 'Город', width: 100 },
 

@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-quartz.css';
+//import 'ag-grid-community/styles/ag-grid.css';
+//import 'ag-grid-community/styles/ag-theme-quartz.css';
 
 interface ActivityType {
   id: number;

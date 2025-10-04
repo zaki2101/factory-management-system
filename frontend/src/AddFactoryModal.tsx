@@ -24,13 +24,14 @@ interface AddFactoryModalProps {
   onClose: () => void;          // Функция закрытия модального окна
   onSave: (factory: any) => void;
   isLoading?: boolean; // ← Добавляем пропс загрузки
+  activityTypeNames: string[]; // Виды деятельности
 }
 
-const typeFactoryValues = ['ПРОЕКТИРОВАНИЕ', 'ХИМИЯ', 'ФАРМАЦЕВТИКА'];
+//const typeFactoryValues = ['ПРОЕКТИРОВАНИЕ', 'ХИМИЯ', 'ФАРМАЦЕВТИКА'];
 
 // Создаем функциональный компонент
 const AddFactoryModal: React.FC<AddFactoryModalProps> = ({ 
-  onClose, onSave, isLoading = false }) => {
+  onClose, onSave, isLoading = false, activityTypeNames }) => {
   
   // Создаем состояние для хранения данных формы
   const [formData, setFormData] = useState({
@@ -91,8 +92,10 @@ const AddFactoryModal: React.FC<AddFactoryModalProps> = ({
               required
             >
               <option value="">Выберите вид деятельности *</option>
-              {typeFactoryValues.map(value => (
-                <option key={value} value={value}>{value}</option>
+              {activityTypeNames.map(name => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
               ))}
             </select>
 
