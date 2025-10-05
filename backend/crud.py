@@ -160,3 +160,47 @@ def update_activity_type(db: Session, activity_type_id: int, activity_type_data:
     db.commit()
     db.refresh(db_activity_type)
     return db_activity_type
+
+#############################################################
+# ТАБЛИЦА МЕНЕДЖЕРЫ
+# Функции для работы со справочником Менеджеры
+
+# Функция для получения списка всех записей
+def get_all_managers(db: Session):
+    return db.query(models.Manager).all()
+
+def create_manager(db: Session, manager: schemas.ManagerCreate):
+    db_manager = models.Manager(**manager.dict())
+    db.add(db_manager)
+    db.commit()
+    db.refresh(db_manager)
+    return db_manager
+
+def delete_manager(db: Session, manager_id: int):
+    db_manager = db.query(models.Manager).filter(models.Manager.id == manager_id).first()
+    if db_manager:
+        db.delete(db_manager)
+        db.commit()
+        return True
+    return False
+
+def update_manager(db: Session, manager_id: int, manager_data: schemas.ManagerCreate):
+    db_manager = db.query(models.Manager).filter(models.Manager.id == manager_id).first()
+    if not db_manager:
+        return None
+    
+    # Проверяем уникальность фио (кроме текущей записи)
+    if manager_data.manager_name != db_manager.manager_name:
+        existing = db.query(models.Manager).filter(
+            models.Manager.manager_name == manager_data.manager_name
+        ).first()
+        if existing:
+            return None  # Название уже занято
+    
+    # Обновляем поля
+    for field, value in manager_data.dict().items():
+        setattr(db_manager, field, value)
+    
+    db.commit()
+    db.refresh(db_manager)
+    return db_manager

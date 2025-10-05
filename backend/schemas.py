@@ -35,12 +35,12 @@ class FactoryCreate(BaseModel):
     date_created: Optional[date] = None
 
 
-    @validator('type_factory')
-    def validate_type_factory(cls, v):
-        allowed_values = ['ПРОЕКТИРОВАНИЕ', 'ХИМИЯ', 'ФАРМАЦЕВТИКА']
-        if v not in allowed_values:
-            raise ValueError(f'Тип производства должен быть одним из: {allowed_values}')
-        return v
+    #@validator('type_factory')
+    #def validate_type_factory(cls, v):
+        #allowed_values = ['ПРОЕКТИРОВАНИЕ', 'ХИМИЯ', 'ФАРМАЦЕВТИКА']
+        #if v not in allowed_values:
+        #    raise ValueError(f'Тип производства должен быть одним из: {allowed_values}')
+        #return 
 
 # Схема для возврата данных из БД
 class Factory(FactoryCreate):
@@ -71,12 +71,27 @@ class Employee(EmployeeCreate):
         from_attributes = True  # Ранее called ORM mode
 
 
+# Схемы для справочника "Виды деятельности"
 class ActivityTypeCreate(BaseModel):
     name: str
     description: Optional[str] = None
 
 
 class ActivityType(ActivityTypeCreate):
+    id: int
+    
+    class Config:
+        from_attributes = True
+
+
+# Схемы для справочника "Менеджеры"
+class ManagerCreate(BaseModel):
+    manager_name: str
+    manager_phone: Optional[str] = None
+    manager_email: Optional[str] = None
+    manager_comment: Optional[str] = None
+
+class Manager(ManagerCreate):
     id: int
     
     class Config:

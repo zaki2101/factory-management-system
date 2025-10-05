@@ -68,8 +68,8 @@
   margin-bottom: 5px; /* ← Отступ снизу */
 }
 
-/* КНОПКА ДОБАВЛЕНИЯ */
-.add-button {
+/* КНОПКИ добавление предприятия, экспорт */
+.factory-button {
   background: #2196F3;         /*  цвет фона */
   color: white;                /* цвет текста */
   padding: 10px 15px;            /* Внутренние отступы: 10px сверху/снизу, 20px слева/справа */
@@ -80,7 +80,7 @@
 }
 
 /* СОСТОЯНИЕ ПРИ НАВЕДЕНИИ НА КНОПКУ */
-.add-button:hover {
+.factory-button:hover {
   background: #1976D2;   
 }
 
@@ -244,28 +244,9 @@
   overflow-y: auto;
 }
 
-/* Для кнопок экспорта файла */
-.export-button {
-  background: #2196F3;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
 
-.export-button:hover {
-  background: #1976D2;
-}
-
-.export-button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-/* Для кнопки Виды деятельности */
-.activity-types-button {
+/* Для кнопки справочников */
+.directory-button  {
   background: #afe1ea;
   color: black;
   border: none;
@@ -275,11 +256,12 @@
   font-size: 14px;
 }
 
-.activity-types-button:hover {
+.directory-button:hover {
   background: #70d7e9;
 }
 
-.activity-types-button:disabled {
+.directory-button:disabled {
   background: #ccc;
   cursor: not-allowed;
 }
+

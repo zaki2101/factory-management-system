@@ -354,3 +354,62 @@ def update_activity_type(
         )
     
     return updated_activity_type
+
+
+########################################################
+# СПРАВОЧНИК "МЕНЕДЖЕРЫ"
+
+
+# GET Получить все записи
+@app.get("/managers/", response_model=list[schemas.Manager])
+def read_managers(db: Session = Depends(get_db)):
+    managers = crud.get_all_managers(db)
+    return managers
+
+# POST - создать новую запись
+@app.post("/managers/", response_model=schemas.Manager)
+def create_manager(
+    manager: schemas.ManagerCreate, 
+    db: Session = Depends(get_db)
+):
+    # Проверяем уникальность фио
+    db_manager = db.query(models.Manager).filter(
+        models.Manager.manager_name == manager.manager_name
+    ).first()
+    
+    if db_manager:
+        raise HTTPException(
+            status_code=400, 
+            detail="Менеджер уже существует"
+        )
+    return crud.create_manager(db=db, manager=manager)
+
+# DELETE - удалить запись
+@app.delete("/managers/{manager_id}")
+def delete_manager(manager_id: int, db: Session = Depends(get_db)):
+    success = crud.delete_manager(db, manager_id=manager_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Manager not found")
+    return {"message": "Manager deleted successfully"}
+
+# PUT - обновить запись
+@app.put("/managers/{manager_id}", response_model=schemas.Manager)
+def update_manager(
+    manager_id: int,
+    manager_data: schemas.ManagerCreate,
+    db: Session = Depends(get_db)
+):
+    # Обновить по ID
+    update_manager = crud.update_manager(
+        db, 
+        manager_id=manager_id, 
+        manager_data=manager_data
+    )
+    
+    if update_manager is None:
+        raise HTTPException(
+            status_code=404, 
+            detail="Manager not found or name already exists"
+        )
+    
+    return update_manager

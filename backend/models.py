@@ -46,13 +46,22 @@ class Employee(Base):  # Таблица "Сотрудники"
     comment3 = Column(String, nullable=True)    # Комментарий 3
 
 
-class ActivityType(Base):  # Таблица "Виды деятельности"
+class ActivityType(Base):  # Модель "Виды деятельности"
     __tablename__ = "activity_types"  # Название таблицы
     
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True, nullable=False)  # Название вида деятельности
     description = Column(String, nullable=True)         # Описание 
+
+
+class Manager(Base):  # Модель "Менеджеры"
+    __tablename__ = "managers"  # Название таблицы
     
+    id = Column(Integer, primary_key=True)
+    manager_name = Column(String, unique=True, nullable=False)  
+    manager_phone = Column(String, nullable=True)
+    manager_email = Column(String, nullable=True)  
+    manager_comment = Column(String, nullable=True)         
 
 
     '''

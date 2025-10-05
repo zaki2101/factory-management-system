@@ -6,7 +6,8 @@ import { ColDef } from 'ag-grid-community';    // ← Типы для колон
 //import 'ag-grid-community/styles/ag-grid.css'; // ← Базовые стили
 //import 'ag-grid-community/styles/ag-theme-quartz.css'; // ← Тема Quartz
 
-import EmployeesModal from './EmployeesModal'; // Импортируем компонент модального окна (его создадим позже)
+import EmployeesModal from './EmployeesModal'; // Импортируем компонент модального окна 
+
 
 import { ModuleRegistry, AllCommunityModule} from 'ag-grid-community';
 
@@ -15,6 +16,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 
 interface FactoryTableProps {
   activityTypeNames: string[];  // Пропс со списком названий видов деятельности
+  managerNames: string[];  // Пропс со списком менеджеров
 }
 
 interface Factory {
@@ -39,7 +41,7 @@ interface Factory {
 }
 
 
-const FactoryTable: React.FC<FactoryTableProps> = ({ activityTypeNames }) => {
+const FactoryTable: React.FC<FactoryTableProps> = ({ activityTypeNames, managerNames  }) => {
   // хук состояния React
   // rowData — переменная, которая хранит текущие данные таблицы 
   // setRowData — функция для обновления этих данных
@@ -200,12 +202,25 @@ const saveChanges = async (data: any) => {
       editable: false
     },
 
-    { field: 'manager', headerName: 'Менеджер', width: 120, sortable: true, filter: true },
+    { 
+      field: 'manager', 
+      headerName: 'Менеджер', 
+      width: 120, 
+      sortable: true, 
+      filter: true,
+      editable: true,
+      cellEditor: 'agSelectCellEditor',        // ← Выпадающий список
+      cellEditorParams: {
+        values: managerNames                   // ← Из справочника менеджеров
+      }
+    },
 
     {
       field: 'type_factory', 
       headerName: 'ВИД ДЕЯТЕЛЬНОСТИ', 
       cellEditor: 'agSelectCellEditor',
+      sortable: true, 
+      filter: true,
       cellEditorParams: {
       values: activityTypeNames  // ← Уже готовый массив строк
       },
@@ -235,7 +250,7 @@ const saveChanges = async (data: any) => {
     { field: 'inn', headerName: 'ИНН', width: 120, filter: true },
     { field: 'address', headerName: 'Адрес', width: 200 },
     { field: 'n_empl', headerName: 'Кол-во сотр', width: 50 },
-    { field: 'okved', headerName: 'ОКВЭД', width: 100 },
+    { field: 'okved', headerName: 'ОКВЭД', width: 100, filter: true },
     { field: 'emails', headerName: 'Email', width: 150 },
     { field: 'website', headerName: 'Сайт', width: 100 },
     { field: 'phones', headerName: 'Телефоны', width: 120 },

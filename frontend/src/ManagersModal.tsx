@@ -1,38 +1,41 @@
-// Виды деятельности модальное окно
+// Модальное окно для справочника "Менеджеры"
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
-//import 'ag-grid-community/styles/ag-grid.css';
-//import 'ag-grid-community/styles/ag-theme-quartz.css';
+ 
 
-interface ActivityType {
+interface Manager {
   id: number;
-  name: string;
-  description: string | null;
+  manager_name: string;
+  manager_phone: string | null;
+  manager_email: string | null;
+  manager_comment: string | null;
 }
 
-interface ActivityTypesModalProps {
+interface ManagersModalProps {
   onClose: () => void;
 }
 
-const ActivityTypesModal: React.FC<ActivityTypesModalProps> = ({ onClose }) => {
-  const [activityTypes, setActivityTypes] = useState<ActivityType[]>([]);
+const ManagersModal: React.FC<ManagersModalProps> = ({ onClose }) => {
+  const [Managers, setManagers] = useState<Manager[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [newActivity, setNewActivity] = useState({
-    name: '',
-    description: ''
+  const [newManager, setNewManager] = useState({
+    manager_name: '',
+    manager_phone: '',
+    manager_email: '',
+    manager_comment: ''
   });
 
-  // Загрузка видов деятельности
-  const fetchActivityTypes = async () => {
+  // Загрузка списка менеджеров
+  const fetchManagers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8000/activity-types/');
+      const response = await fetch('http://localhost:8000/managers/');
       if (!response.ok) throw new Error('Ошибка загрузки');
       const data = await response.json();
-      setActivityTypes(data);
+      setManagers(data);
     } catch (err) {
       setError('Не удалось загрузить данные');
     } finally {
@@ -40,20 +43,22 @@ const ActivityTypesModal: React.FC<ActivityTypesModalProps> = ({ onClose }) => {
     }
   };
 
-  // Добавление нового вида деятельности
-  const handleAddActivityType = async () => {
-    if (!newActivity.name.trim()) {
+  // Добавление нового менеджера
+  const handleAddManager = async () => {
+    if (!newManager.manager_name.trim()) {
       alert('Введите название вида деятельности');
       return;
     }
 
     try {
-      const response = await fetch('http://localhost:8000/activity-types/', {
+      const response = await fetch('http://localhost:8000/managers/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: newActivity.name,
-          description: newActivity.description || null
+          manager_name: newManager.manager_name,
+          manager_phone: newManager.manager_phone || null,
+          manager_email: newManager.manager_email || null,
+          manager_comment: newManager.manager_comment || null
         })
       });
 
@@ -62,8 +67,8 @@ const ActivityTypesModal: React.FC<ActivityTypesModalProps> = ({ onClose }) => {
         throw new Error(errorData.detail || 'Ошибка при добавлении');
       }
 
-      setNewActivity({ name: '', description: '' });
-      await fetchActivityTypes();
+      setNewManager({ manager_name: '', manager_phone: '', manager_email: '', manager_comment: '' });
+      await fetchManagers();
       
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Ошибка при добавлении');
@@ -74,37 +79,39 @@ const ActivityTypesModal: React.FC<ActivityTypesModalProps> = ({ onClose }) => {
   // При изменении любой ячейки AG Grid автоматически вызывает эту функцию и отправляет обновленные данные на сервер
   const handleCellValueChanged = useCallback(async (params: any) => {
     try {
-      const response = await fetch(`http://localhost:8000/activity-types/${params.data.id}`, {
+      const response = await fetch(`http://localhost:8000/managers/${params.data.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: params.data.name,
-          description: params.data.description
+          manager_name: params.data.manager_name,
+          manager_phone: params.data.manager_phone,
+          manager_email: params.data.manager_email,
+          manager_comment: params.data.manager_comment
         })
       });
 
       if (!response.ok) {
         alert('Ошибка сохранения изменений');
-        await fetchActivityTypes(); // Перезагружаем данные
+        await fetchManagers(); // Перезагружаем данные
       }
     } catch (error) {
       console.error('Ошибка сохранения:', error);
       alert('Ошибка при сохранении изменений');
-      await fetchActivityTypes();
+      await fetchManagers();
     }
   }, []);
 
-  // Удаление вида деятельности
-  const handleDeleteActivityType = async (id: number) => {
-    if (!window.confirm('Удалить этот вид деятельности?')) return;
+  // Удаление менеджера
+  const handleDeleteManager = async (id: number) => {
+    if (!window.confirm('Удалить менеджера?')) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/activity-types/${id}`, {
+      const response = await fetch(`http://localhost:8000/managers/${id}`, {
         method: 'DELETE'
       });
 
       if (response.ok) {
-        await fetchActivityTypes();
+        await fetchManagers();
       } else {
         alert('Ошибка при удалении');
       }
@@ -114,34 +121,51 @@ const ActivityTypesModal: React.FC<ActivityTypesModalProps> = ({ onClose }) => {
   };
 
   useEffect(() => {
-    fetchActivityTypes();
+    fetchManagers();
   }, []);
 
   // Колонки для AG Grid
   const columnDefs: ColDef[] = [
     { 
-      field: 'name', 
-      headerName: 'Название', 
+      field: 'manager_name', 
+      headerName: 'ФИО', 
       width: 350, 
       sortable: true, 
       filter: true,
       editable: true 
     },
     { 
-      field: 'description', 
-      headerName: 'Описание', 
-      width: 360, 
+      field: 'manager_phone', 
+      headerName: 'Телефон', 
+      width: 150, 
       sortable: false, 
       filter: false,
       editable: true 
     },
+    { 
+      field: 'manager_email', 
+      headerName: 'Email', 
+      width: 150, 
+      sortable: false, 
+      filter: false,
+      editable: true 
+    },
+    { 
+      field: 'manager_comment', 
+      headerName: 'Комментарий', 
+      width: 150, 
+      sortable: false, 
+      filter: false,
+      editable: true 
+    },
+
     {
       field: 'actions',
       headerName: '❌',
       width: 60,
       cellRenderer: (params: any) => (
         <button 
-          onClick={() => handleDeleteActivityType(params.data.id)}
+          onClick={() => handleDeleteManager(params.data.id)}
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'red' }}
           title="Удалить"
         >
@@ -165,7 +189,7 @@ const ActivityTypesModal: React.FC<ActivityTypesModalProps> = ({ onClose }) => {
           //marginBottom: '5px',
           //borderBottom: '1px solid #ddd'
         }}>
-          <h3 style={{ margin: 0 }}>Справочник Виды деятельности</h3>
+          <h3 style={{ margin: 0 }}>Справочник Менеджеры</h3>
           <button onClick={onClose}>×</button>
         </div>
         
@@ -184,19 +208,32 @@ const ActivityTypesModal: React.FC<ActivityTypesModalProps> = ({ onClose }) => {
           }}>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               <input
-                placeholder="Название вида деятельности"
-                value={newActivity.name}
-                onChange={(e) => setNewActivity({...newActivity, name: e.target.value})}
+                placeholder="Фамилия"
+                value={newManager.manager_name}
+                onChange={(e) => setNewManager({...newManager, manager_name: e.target.value})}
                 style={{ padding: '8px', flex: 1 }}
               />
               <input
-                placeholder="Описание (необязательно)"
-                value={newActivity.description}
-                onChange={(e) => setNewActivity({...newActivity, description: e.target.value})}
+                placeholder="Телефон (необязательно)"
+                value={newManager.manager_phone}
+                onChange={(e) => setNewManager({...newManager, manager_phone: e.target.value})}
                 style={{ padding: '8px', flex: 1 }}
               />
+              <input
+                placeholder="Email (необязательно)"
+                value={newManager.manager_email}
+                onChange={(e) => setNewManager({...newManager, manager_email: e.target.value})}
+                style={{ padding: '8px', flex: 1 }}
+              />
+               <input
+                placeholder="Комментарий (необязательно)"
+                value={newManager.manager_comment}
+                onChange={(e) => setNewManager({...newManager, manager_comment: e.target.value})}
+                style={{ padding: '8px', flex: 1 }}
+              />
+
               <button 
-                onClick={handleAddActivityType}
+                onClick={handleAddManager}
                 style={{ 
                   padding: '8px 15px', 
                   background: '#2196F3', 
@@ -216,7 +253,7 @@ const ActivityTypesModal: React.FC<ActivityTypesModalProps> = ({ onClose }) => {
           {!loading && !error && (
             <div className="ag-theme-quartz" style={{ flex: 1 }}>
               <AgGridReact
-                rowData={activityTypes}
+                rowData={Managers}
                 columnDefs={columnDefs}
                 rowHeight={40}
                 /* При изменении любой ячейки AG Grid автоматически вызывает 
@@ -239,4 +276,4 @@ const ActivityTypesModal: React.FC<ActivityTypesModalProps> = ({ onClose }) => {
   );
 };
 
-export default ActivityTypesModal;
+export default ManagersModal;

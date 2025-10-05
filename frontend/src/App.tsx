@@ -6,6 +6,7 @@ import AddFactoryModal from './AddFactoryModal'; // подключение ко�
 import ExportModal from './ExportModal'; // подключение модального окна для сохранения предприятий в файл
 
 import ActivityTypesModal from './ActivityTypesModal'; // подключение модального окна видов деятельности
+import ManagersModal from './ManagersModal'; // подключение модального окна менеджеров
 
 import { Factory } from './FactoryTable';
 import './App.css';
@@ -25,11 +26,15 @@ function App() {
   // Состояние модального окна видов деятельности
   const [isActivityTypesModalOpen, setIsActivityTypesModalOpen] = useState(false); 
   
+  // Состояние модального окна справочника Менеджеров
+  const [isManagersModalOpen, setIsManagersModalOpen] = useState(false); 
+
   /* **********************************
   Виды деятельности выгружаются при старте, простая реализация, т.к
   справочник редко корректируется, сохраняем только названия
   */
   const [activityTypeNames, setActivityTypeNames] = useState<string[]>([]);
+
 
   const fetchActivityTypes = async () => {
     try {
@@ -51,12 +56,46 @@ function App() {
   }, []);
 
 
+/* **********************************
+  Менеджеры выгружаются при старте, простая реализация, т.к
+  справочник редко корректируется, сохраняем только названия
+  */
+  const [managerNames, setManagerNames] = useState<string[]>([]);
+
+  const fetchManagers = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/managers/');
+      if (response.ok) {
+        const data = await response.json();
+        // ↓↓↓ Извлекаем ТОЛЬКО ФИО ↓↓↓
+        const manager_names = data.map((manager: any) => manager.manager_name);
+        setManagerNames(manager_names);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки менеджеров:', error);
+    }
+  };
+
+  // Загружаем один раз при запуске
+  useEffect(() => {
+    fetchManagers();
+  }, []);
+
+
+
+
+
   // Функция открытия модального окна справочника видов деятельности
   const handleOpenActivityTypesModal = () => {
     setIsActivityTypesModalOpen(true);
   };
 
-  
+  // Функция открытия модального окна справочника менеджеров
+  const handleOpenManagersModal = () => {
+    setIsManagersModalOpen(true);
+  };
+
+
   // Функция открытия модального окна экспорта предприятий
   const handleOpenExportModal = () => {
     setIsExportModalOpen(true);
@@ -138,7 +177,7 @@ function App() {
       }}>
         <h2>Сегмент Фабрика</h2>
         <button 
-          className="add-button"
+          className="factory-button"
           onClick={() => setIsAddModalOpen(true)}
           disabled={isLoading} 
         >
@@ -146,23 +185,39 @@ function App() {
         </button>
 
         {/* кнопка экспорта файла - открывает модальное окно */}
-        <button className="export-button" onClick={handleOpenExportModal} >
+        <button className="factory-button" onClick={handleOpenExportModal} >
           💾 Сохранить в Excel
         </button>
 
         {/* кнопка справочника видов деятельности - открывает модальное окно */}
         <button 
-          className="activity-types-button"
+          className="directory-button"
           onClick={handleOpenActivityTypesModal}
-          title="Справочник видов деятельности"
+          title="Справочник Виды деятельности"
         >
           Виды деятельности
         </button>
+
+        {/* кнопка справочника менеджеров - открывает модальное окно */}
+        <button 
+          className="directory-button"
+          onClick={handleOpenManagersModal}
+          title="Справочник Менеджеры"
+        >
+          Менеджеры
+        </button>
+
       </div>
       
       
-      <FactoryTable activityTypeNames={activityTypeNames} />
-      {/* activityTypeNames - список видов деятельности*/}
+      <FactoryTable 
+        activityTypeNames={activityTypeNames} 
+        managerNames={managerNames}
+      />
+      {/* activityTypeNames - список видов деятельности
+          managerNames - список менеджеров
+      */}
+
 
       {/* Модальное окно добавления фабрики */}
       {isAddModalOpen && (
@@ -178,6 +233,7 @@ function App() {
         */
         <AddFactoryModal
           activityTypeNames={activityTypeNames}  // ← Только названия
+          managerNames={managerNames} 
           onClose={() => !isLoading && setIsAddModalOpen(false)} 
           onSave={async (newFactory: Omit<Factory, 'id'> ) => {
             try {
@@ -224,6 +280,14 @@ function App() {
           onClose={() => setIsActivityTypesModalOpen(false)}
         />
       )}
+
+      {/* модальное окно справочника видов деятельности */}
+      {isManagersModalOpen && (
+        <ManagersModal
+          onClose={() => setIsManagersModalOpen(false)}
+        />
+      )}
+
     </div>
   );
 }

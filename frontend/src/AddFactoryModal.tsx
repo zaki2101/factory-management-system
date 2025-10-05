@@ -24,14 +24,15 @@ interface AddFactoryModalProps {
   onClose: () => void;          // Функция закрытия модального окна
   onSave: (factory: any) => void;
   isLoading?: boolean; // ← Добавляем пропс загрузки
-  activityTypeNames: string[]; // Виды деятельности
+  activityTypeNames: string[]; // Список Виды деятельности
+  managerNames: string[]; // Список Менеджеры
 }
 
 //const typeFactoryValues = ['ПРОЕКТИРОВАНИЕ', 'ХИМИЯ', 'ФАРМАЦЕВТИКА'];
 
 // Создаем функциональный компонент
 const AddFactoryModal: React.FC<AddFactoryModalProps> = ({ 
-  onClose, onSave, isLoading = false, activityTypeNames }) => {
+  onClose, onSave, isLoading = false, activityTypeNames, managerNames }) => {
   
   // Создаем состояние для хранения данных формы
   const [formData, setFormData] = useState({
@@ -79,13 +80,27 @@ const AddFactoryModal: React.FC<AddFactoryModalProps> = ({
             {/* ПОЛЯ ДЛЯ ВВОДА */}
 
             {/* required - не может быть пустым */}  
-            <input
+            {/*<input
               placeholder="Менеджер *"        
               value={formData.manager}         
               onChange={(e) => setFormData({...formData, manager: e.target.value})}
               required                        
             />
-            
+            */}
+            <select
+              value={formData.manager}
+              onChange={(e) => setFormData({...formData, manager: e.target.value})}
+              required
+            >
+              <option value="">Выберите менеджера *</option>
+              {managerNames.map(name => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+
+
             <select
               value={formData.type_factory}
               onChange={(e) => setFormData({...formData, type_factory: e.target.value})}
