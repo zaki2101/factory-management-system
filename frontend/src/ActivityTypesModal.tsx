@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
-//import 'ag-grid-community/styles/ag-grid.css';
-//import 'ag-grid-community/styles/ag-theme-quartz.css';
+
+import './App.css';
 
 interface ActivityType {
   id: number;
@@ -156,25 +156,13 @@ const ActivityTypesModal: React.FC<ActivityTypesModalProps> = ({ onClose }) => {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content" style={{ width: '800px', height: '600px' }}>
-        <div className="modal-header" style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          padding: '10px',
-          //marginBottom: '5px',
-          //borderBottom: '1px solid #ddd'
-        }}>
+      <div className="modal-content">
+        <div className="modal-header">
           <h3 style={{ margin: 0 }}>Справочник Виды деятельности</h3>
           <button onClick={onClose}>×</button>
         </div>
         
-        <div className="modal-body" style={{ 
-          height: 'calc(100% - 60px)',
-          display: 'flex',
-          flexDirection: 'column',
-          padding: '15px'
-        }}>
+        <div className="modal-body">
           {/* Панель добавления */}
           <div style={{ 
             padding: '10px', 

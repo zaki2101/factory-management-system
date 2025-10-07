@@ -18,6 +18,7 @@ Omit<Factory, 'id'> - тип без поля id (так как id создает
 // Импортируем необходимые модули React
 import React, { useState } from 'react';
 
+import './App.css';
 
 // Определяем интерфейс для пропсов компонента
 interface AddFactoryModalProps {

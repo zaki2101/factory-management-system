@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 // useState - хранит значения фильтров (даты начала и конца)
 
+import './App.css';
+
 // пропсы: функции закрытия и экспорта, статус загрузки
 interface ExportModalProps {
   onClose: () => void; // Функция закрытия окна

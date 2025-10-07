@@ -10,7 +10,7 @@ import EmployeesModal from './EmployeesModal'; // Импортируем ком�
 
 
 import { ModuleRegistry, AllCommunityModule} from 'ag-grid-community';
-
+import './App.css';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -280,7 +280,8 @@ const saveChanges = async (data: any) => {
             height: '100vh',         // 100% высоты экрана
             width: '100%',          // Вся доступная ширина
             //margin: '0 auto',
-            overflow: 'auto'        // полосы прокрутки
+            overflow: 'auto',        // полосы прокрутки
+            marginBottom: '15px'     // отступ снизу
           }}
       >
 
@@ -302,7 +303,9 @@ const saveChanges = async (data: any) => {
           //floatingFilter: false,               // Поля фильтра над заголовками
           //minWidth: 100,                      // Минимальная ширина колонки
           //flex: 1,                            // Гибкое растяжение
+          cellStyle: { border: '1px solid #ddd' } //   вертикальная разметка
         }}
+        
         stopEditingWhenCellsLoseFocus={true}  // Сохранять при потере фокуса
       />
     </div>

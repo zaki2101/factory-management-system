@@ -82,9 +82,6 @@ function App() {
   }, []);
 
 
-
-
-
   // Функция открытия модального окна справочника видов деятельности
   const handleOpenActivityTypesModal = () => {
     setIsActivityTypesModalOpen(true);
@@ -105,9 +102,6 @@ function App() {
   const handleCloseExportModal = () => {
     setIsExportModalOpen(false);
   };
-
-
-
 
 
   // Функция для экспорта в Excel предприятий (с фильтрами)
@@ -169,12 +163,7 @@ function App() {
       {/* Сообщение об ошибке */}
       {error && <div className="error-message">{error}</div>}
 
-      <div className="header" style={{ 
-        display: 'flex', // ← Элементы в одну линию
-        alignItems: 'center', // ← Выравнивание по вертикали по центру 
-        justifyContent: 'flex-start', // ← Элементы прижаты к левому краю
-        gap: '10px'   // ← Расстояние между элементами
-      }}>
+      <div className="header">
         <h2>Сегмент Фабрика</h2>
         <button 
           className="factory-button"
@@ -186,7 +175,7 @@ function App() {
 
         {/* кнопка экспорта файла - открывает модальное окно */}
         <button className="factory-button" onClick={handleOpenExportModal} >
-          💾 Сохранить в Excel
+           Сохранить в Excel
         </button>
 
         {/* кнопка справочника видов деятельности - открывает модальное окно */}
@@ -209,7 +198,8 @@ function App() {
 
       </div>
       
-      
+      {/* Таблица - растягивается на оставшееся пространство */}
+      <div style={{ flex: 1, minHeight: 0 }}></div>
       <FactoryTable 
         activityTypeNames={activityTypeNames} 
         managerNames={managerNames}
@@ -297,25 +287,3 @@ export default App;
 
 
 
-/* УДАЛИТЬ МОЖНО!
-<div className="header">
-        <h2>Сегмент Фабрика</h2>
-        <div style={{ display: 'flex', gap: '10px' }}>
-        <button 
-          className="add-button"
-          onClick={() => setIsAddModalOpen(true)}
-          disabled={isLoading} 
-        >
-          {isLoading ? 'Загрузка...' : '+ Добавить предприятие'}
-        </button>
-
-        {/* кнопка экспорта файла - открывает модальное окно */
-
-        /*
-          <button className="export-button" onClick={handleOpenExportModal} >
-            💾 Сохранить в Excel
-          </button>
-        </div>
-      </div>
-
-    */

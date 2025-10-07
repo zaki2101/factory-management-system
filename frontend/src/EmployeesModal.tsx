@@ -1,10 +1,11 @@
 // Модальное окно для вывода сотрудников предприятия
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
-//import 'ag-grid-community/styles/ag-grid.css';
-//import 'ag-grid-community/styles/ag-theme-quartz.css';
+
+import './App.css';
+
 
 interface EmployeesModalProps {
   factoryInn: string;
@@ -41,25 +42,26 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({ factoryInn, factoryName
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Загрузка сотрудников
-  const fetchEmployees = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`http://localhost:8000/factories/${factoryInn}/employees`);
-      
-      if (!response.ok) throw new Error('Ошибка загрузки данных');
-      
-      const data = await response.json();
-      setEmployees(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Неизвестная ошибка');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Загрузка сотрудников
+const fetchEmployees = useCallback(async () => {
+  try {
+    setLoading(true);
+    const response = await fetch(`http://localhost:8000/factories/${factoryInn}/employees`);
+    
+    if (!response.ok) throw new Error('Ошибка загрузки данных');
+    
+    const data = await response.json();
+    setEmployees(data);
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'Неизвестная ошибка');
+  } finally {
+    setLoading(false);
+  }
+}, [factoryInn]);
 
-  useEffect(() => {
-    if (factoryInn) fetchEmployees();
-  }, [factoryInn]);
+useEffect(() => {
+  if (factoryInn) fetchEmployees();
+}, [factoryInn, fetchEmployees]);
 
   // Добавление нового сотрудника
   const handleAddEmployee = async (employeeData: NewEmployee) => {
@@ -181,7 +183,6 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({ factoryInn, factoryName
         <button 
           onClick={() => handleDeleteEmployee(params.data.id)}
           className="delete-btn"
-          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
         >
           🗑️ Удалить
         </button>
@@ -229,26 +230,8 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({ factoryInn, factoryName
     };
 
     return (
-      <div className="modal-overlay" style={{ 
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        bottom: 0, 
-        background: 'rgba(0,0,0,0.5)', 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        zIndex: 1000 
-      }}>
-        <div className="modal-content" style={{ 
-          background: 'white', 
-          padding: '20px', 
-          borderRadius: '8px', 
-          width: '500px',
-          maxHeight: '80vh',
-          overflowY: 'auto'
-        }}>
+      <div className="modal-overlay">
+        <div className="modal-content">
           <h3>Добавить сотрудника</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '15px' }}>
             <input
@@ -319,33 +302,14 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({ factoryInn, factoryName
   };
 
   return (
-    <div className="modal-overlay" style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 999
-    }}>
+    <div className="modal-overlay">
       <div className="modal-content" style={{ 
-        background: 'white', 
-        padding: '20px', 
-        borderRadius: '8px', 
         width: '95vw', 
         height: '95vh',
         display: 'flex',
         flexDirection: 'column'
       }}>
-        <div className="modal-header" style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          marginBottom: '15px' 
-        }}>
+        <div className="modal-header">
           <h3>Сотрудники: {factoryName}</h3>
           <div>
             <button 
