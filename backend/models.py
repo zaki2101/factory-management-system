@@ -37,6 +37,7 @@ class Employee(Base):  # Таблица "Сотрудники"
     # Внешний ключ на таблицу factories, поле inn
     # ForeignKey('factories.inn') - поле inn в этой таблице ссылается на поле inn в таблице factories
     inn = Column(String, ForeignKey('factories.inn'), nullable=False, index=True)
+    name_factory = Column(String, nullable=False)
     employee = Column(String, nullable=False)  # ФИО (обязательное поле)
     position = Column(String)                   # Должность
     phone = Column(String)                      # Телефон

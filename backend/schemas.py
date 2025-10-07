@@ -54,6 +54,7 @@ class Factory(FactoryCreate):
 # Схема для создания нового сотрудника
 class EmployeeCreate(BaseModel):
     inn: str           # ИНН фабрики, к которой привязываем сотрудника
+    name_factory: str
     employee: str      # ФИО (обязательное поле)
     position: Optional[str] = None
     phone: Optional[str] = None

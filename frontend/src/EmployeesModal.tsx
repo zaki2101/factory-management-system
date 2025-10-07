@@ -8,14 +8,15 @@ import './App.css';
 
 
 interface EmployeesModalProps {
-  factoryInn: string;
-  factoryName: string;
+  factoryInn: string; // передаем ИНН из таблицы Фабрики
+  factoryName: string; // передаем название из таблицы Фабрики
   onClose: () => void;
 }
 
 interface Employee {
   id: number;
   inn: string;
+  name_factory: string;
   employee: string;
   position: string | null;
   phone: string | null;
@@ -78,7 +79,8 @@ useEffect(() => {
         },
         body: JSON.stringify({
           ...employeeData,
-          inn: factoryInn
+          inn: factoryInn, // ← Берем из пропсов! (EmployeesModal.tsx)
+          name_factory: factoryName  // ← Берем из пропсов! (EmployeesModal.tsx)
         })
       });
 
