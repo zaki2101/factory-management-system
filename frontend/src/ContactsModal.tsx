@@ -53,13 +53,79 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
     }
   };
 
+  // Обработчик изменений
+  // При изменении ячейки отправляем PUT-запрос на обновление данных сотрудника
+  const handleCellValueChanged = async (params: any) => {
+    try {
+      const response = await fetch(`http://localhost:8000/employees/${params.data.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params.data)
+      });
+
+      if (!response.ok) {
+        alert('Ошибка сохранения изменений');
+        await fetchContacts(); // Перезагружаем данные
+      }
+    } catch (error) {
+      console.error('Ошибка сохранения:', error);
+      alert('Ошибка при сохранении изменений');
+      await fetchContacts();
+    }
+  };
+
+  // Функция удаления записи -  запрашивает подтверждение, отправляет DELETE-запрос и обновляет таблицу
+  const handleDeleteContact = async (contactId: number) => {
+  // Подтверждение удаления
+    if (!window.confirm('Удалить этот контакт?')) return;
+
+    try {
+      const response = await fetch(`http://localhost:8000/employees/${contactId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        // Успешно удалено - обновляем список
+        await fetchContacts();
+      } else {
+        alert('Ошибка при удалении контакта');
+      }
+    } catch (error) {
+      console.error('Ошибка удаления:', error);
+      alert('Ошибка при удалении контакта');
+    }
+  };
+
+
+
   // Загружаем контакты при открытии модального окна
   useEffect(() => {
     fetchContacts();
   }, []);
 
+
+
   // Колонки таблицы AG Grid
   const columnDefs: ColDef[] = [
+    // кнопка удаление
+    {
+      field: 'actions',
+      headerName: '❌',       // Иконка крестика в заголовке
+      width: 60,
+      cellRenderer: (params: any) => (
+        <button 
+          onClick={() => handleDeleteContact(params.data.id)}
+          className="delete-button"
+          title="Удалить контакт"
+        >
+          ✖️
+        </button>
+      ),
+      sortable: false,        
+      filter: false,          
+      editable: false        
+    },
+
     { 
       field: 'inn', 
       headerName: 'ИНН', 
@@ -161,7 +227,8 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
                 rowData={contacts}
                 columnDefs={columnDefs}
                 rowHeight={40}
-                
+                onCellValueChanged={handleCellValueChanged}  // Обработчик ячеек для редактировани
+                stopEditingWhenCellsLoseFocus={true}         // Автоматическое изменение при переходе на др.ячейку (потеря фокуса)
                 defaultColDef={{
                   resizable: true,
                   sortable: true,
