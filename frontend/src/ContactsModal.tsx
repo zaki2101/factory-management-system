@@ -177,26 +177,45 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
     { 
       field: 'comment1', 
       headerName: 'Комментарий', 
-      width: 150, 
+      width: 250, 
       sortable: true, 
       filter: true,
-      editable: true
+      editable: true,
+      cellStyle: { 
+        'white-space': 'normal',  // ← Разрешает перенос строк
+        'line-height': '1.4',      // ← Увеличивает межстрочный интервал
+        'text-align': 'left',  // ← Выравнивание по левому краю
+      },
+      autoHeight: true           // ← Автоматическая высота строки (для многострочного текста)
     },
+    
     { 
       field: 'comment2', 
       headerName: 'Комментарий', 
-      width: 150, 
+      width: 250, 
       sortable: true, 
       filter: true,
-      editable: true
+      editable: true,
+      cellStyle: { 
+        'white-space': 'normal',  // ← Разрешает перенос строк
+        'line-height': '1.4',      // ← Увеличивает межстрочный интервал
+        'text-align': 'left',  // ← Выравнивание по левому краю
+      },
+      autoHeight: true        
     },
     { 
       field: 'comment3', 
       headerName: 'Комментарий', 
-      width: 150, 
+      width: 250, 
       sortable: true, 
       filter: true,
-      editable: true
+      editable: true,
+      cellStyle: { 
+        'white-space': 'normal',  // ← Разрешает перенос строк
+        'line-height': '1.4',
+        'text-align': 'left',  // ← Выравнивание по левому краю
+      },
+      autoHeight: true        
     }
   ];
 
@@ -233,7 +252,10 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
                   resizable: true,
                   sortable: true,
                   filter: true,
-                  editable: false  // Все колонки только для чтения
+                  editable: false,  
+                  cellStyle: { 
+                    'border-bottom': '1px solid #ddd'  // ← Граница снизу  
+                  }
                 }}
                 enableCellTextSelection={true}
               />
