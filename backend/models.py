@@ -29,7 +29,7 @@ class Factory(Base):  # Таблица "Предприятия"
     date_created = Column(Date, default=date.today)
 
 
-class Employee(Base):  # Таблица "Сотрудники"
+class Employee(Base):  # Таблица "Сотрудники" (Контакты)
     __tablename__ = "employees"  # Название таблицы
     
     id = Column(Integer, primary_key=True)

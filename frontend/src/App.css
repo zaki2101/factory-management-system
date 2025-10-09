@@ -60,6 +60,21 @@
   background: #70d7e9;
 }
 
+/* Для кнопки перехода в таблицу Контакты */
+.contacts-button  {
+  background: rgb(146, 242, 192);
+  color: black;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.contacts-button:hover {
+  background: rgb(92, 241, 165);
+}
+
 /* ФОН МОДАЛЬНОГО ОКНА */
 .modal-overlay {
   position: fixed;               /* Фиксированное позиционирование */
@@ -86,6 +101,16 @@
   max-height: 80%;               /* И не более 80% высоты экрана */
   overflow-y: auto;              /* Добавляем прокрутку если контент не помещается */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* ← Тень для объема */
+}
+
+.modal-content-big {
+  background-color: white;     /* ← Непрозрачный белый фон */
+  background: white;
+  width: 98vw;                  /* Ширина окна  */
+  height: 95vh;
+  overflow-y: auto;             /* Добавляем прокрутку если контент не помещается */
+  display: flex;                /* Для фиксирования шапки */
+  flex-direction: column;       /* Для фиксирования шапки */
 }
 
 /* Вертикальная форма  (в AddFactoryModal, AddFactoryModal)  работает???  */
@@ -121,6 +146,7 @@
   align-items: center;
   padding: 10px;
   margin-bottom: 15px;
+  flex-shrink: 0;  /* шапка фиксируется на месте */
 }
 
 /* Модальное окно*/

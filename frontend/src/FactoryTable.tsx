@@ -185,7 +185,6 @@ const saveChanges = async (data: any) => {
 
 
   const columnDefs: ColDef[] = [
-    //{ field: 'id', headerName: 'ID', width: 80 },
     {
       field: 'actions',
       headerName: '❌',

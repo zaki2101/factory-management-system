@@ -1,0 +1,181 @@
+// Для отображения таблицы Контакты
+
+import React, { useState, useEffect } from 'react';
+import { AgGridReact } from 'ag-grid-react';
+import { ColDef } from 'ag-grid-community';
+
+import './App.css';
+
+// Интерфейс для данных сотрудника (контакта)
+interface Contact {
+  id: number;
+  inn: string;
+  name_factory: string;    // Название фабрики
+  employee: string;        // ФИО сотрудника
+  position: string | null; // Должность
+  phone: string | null;    // Телефон
+  email: string | null;    // Email
+  comment1: string | null; // Комментарий 1
+  comment2: string | null; // Комментарий 2
+  comment3: string | null; // Комментарий 3
+}
+
+// Пропсы компонента
+interface ContactsModalProps {
+  onClose: () => void;
+}
+
+const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
+  // Состояние для хранения списка контактов
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  // Состояние загрузки данных
+  const [loading, setLoading] = useState(true);
+  // Состояние для ошибок
+  const [error, setError] = useState<string | null>(null);
+
+  // Функция загрузки всех сотрудников (контактов)
+  const fetchContacts = async () => {
+    try {
+      setLoading(true);
+      // Запрашиваем всех сотрудников с бэкенда
+      const response = await fetch('http://localhost:8000/all-employees/');
+      
+      if (!response.ok) {
+        throw new Error('Ошибка загрузки данных контактов');
+      }
+      
+      const data = await response.json();
+      setContacts(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Неизвестная ошибка');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Загружаем контакты при открытии модального окна
+  useEffect(() => {
+    fetchContacts();
+  }, []);
+
+  // Колонки таблицы AG Grid
+  const columnDefs: ColDef[] = [
+    { 
+      field: 'inn', 
+      headerName: 'ИНН', 
+      width: 150, 
+      sortable: true, 
+      filter: true,
+      editable: false  // Не редактируемое
+    },
+    { 
+      field: 'name_factory', 
+      headerName: 'Наименование', 
+      width: 200, 
+      sortable: true, 
+      filter: true,
+      editable: false  // Не редактируемое
+    },
+    { 
+      field: 'employee', 
+      headerName: 'ФИО сотрудника', 
+      width: 200, 
+      sortable: true, 
+      filter: true,
+      editable: true
+    },
+    { 
+      field: 'position', 
+      headerName: 'Должность', 
+      width: 150, 
+      sortable: true, 
+      filter: true,
+      editable: true
+    },
+    { 
+      field: 'phone', 
+      headerName: 'Телефон', 
+      width: 150, 
+      sortable: true, 
+      filter: true,
+      editable: true
+    },
+    { 
+      field: 'email', 
+      headerName: 'Email', 
+      width: 200, 
+      sortable: true, 
+      filter: true,
+      editable: true
+    },
+    { 
+      field: 'comment1', 
+      headerName: 'Комментарий', 
+      width: 150, 
+      sortable: true, 
+      filter: true,
+      editable: true
+    },
+    { 
+      field: 'comment2', 
+      headerName: 'Комментарий', 
+      width: 150, 
+      sortable: true, 
+      filter: true,
+      editable: true
+    },
+    { 
+      field: 'comment3', 
+      headerName: 'Комментарий', 
+      width: 150, 
+      sortable: true, 
+      filter: true,
+      editable: true
+    }
+  ];
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content-big">
+        {/* Заголовок модального окна */}
+        <div className="modal-header">
+          <h3 style={{ margin: 0 }}>Контакты сотрудников</h3>
+          <button onClick={onClose}>×</button>
+        </div>
+        
+        {/* Тело модального окна */}
+        <div className="modal-body" style={{ 
+          height: 'calc(100% - 60px)',
+          padding: '15px'
+        }}>
+          {/* Сообщение о загрузке */}
+          {loading && <div>Загрузка контактов...</div>}
+          
+          {/* Сообщение об ошибке */}
+          {error && <div className="error">{error}</div>}
+          
+          {/* Таблица контактов */}
+          {!loading && !error && (
+            <div className="ag-theme-quartz" style={{ height: '100%', width: '100%' }}>
+              <AgGridReact
+                rowData={contacts}
+                columnDefs={columnDefs}
+                rowHeight={40}
+                
+                defaultColDef={{
+                  resizable: true,
+                  sortable: true,
+                  filter: true,
+                  editable: false  // Все колонки только для чтения
+                }}
+                enableCellTextSelection={true}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ContactsModal;

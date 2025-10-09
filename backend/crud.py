@@ -204,3 +204,15 @@ def update_manager(db: Session, manager_id: int, manager_data: schemas.ManagerCr
     db.commit()
     db.refresh(db_manager)
     return db_manager
+
+##########################################
+# ТАБЛИЦА КОНТАКТЫ
+# Все контакты
+
+# функция обеспечивает данные для таблицы в модальном окне "Контакты"
+def get_all_employees(db: Session):
+    """
+    Получить ВСЕХ сотрудников из таблицы employees
+    Используется для модального окна "Контакты"
+    """
+    return db.query(models.Employee).all()

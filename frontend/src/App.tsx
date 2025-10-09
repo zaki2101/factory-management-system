@@ -9,6 +9,7 @@ import ActivityTypesModal from './ActivityTypesModal'; // подключение
 import ManagersModal from './ManagersModal'; // подключение модального окна менеджеров
 
 import { Factory } from './FactoryTable';
+import ContactsModal from './ContactsModal'; // подключение модального окна по конпке Контакты
 import './App.css';
 
 function App() {
@@ -28,6 +29,9 @@ function App() {
   
   // Состояние модального окна справочника Менеджеров
   const [isManagersModalOpen, setIsManagersModalOpen] = useState(false); 
+
+  // Создаем состояние для модального окна таблицы Контакты
+  const [isContactsModalOpen, setIsContactsModalOpen] = useState(false);
 
   /* **********************************
   Виды деятельности выгружаются при старте, простая реализация, т.к
@@ -103,6 +107,9 @@ function App() {
     setIsExportModalOpen(false);
   };
 
+  // Функция открытия модального окна Контакты
+  const handleOpenContactsModal = () => { setIsContactsModalOpen(true); };
+
 
   // Функция для экспорта в Excel предприятий (с фильтрами)
   const handleExportWithFilters = async (filters: { startDate: string; endDate: string }) => {
@@ -175,7 +182,7 @@ function App() {
 
         {/* кнопка экспорта файла - открывает модальное окно */}
         <button className="factory-button" onClick={handleOpenExportModal} >
-           Сохранить в Excel
+           💾 Сохранить в Excel
         </button>
 
         {/* кнопка справочника видов деятельности - открывает модальное окно */}
@@ -195,6 +202,12 @@ function App() {
         >
           Менеджеры
         </button>
+
+        {/* кнопка перехода в таблицу Контакты - открывает модальное окно */}
+        <button className="contacts-button" 
+          onClick={handleOpenContactsModal} >
+          📞 Контакты
+        </button> 
 
       </div>
       
@@ -271,10 +284,17 @@ function App() {
         />
       )}
 
-      {/* модальное окно справочника видов деятельности */}
+      {/* модальное окно справочника менеджеров */}
       {isManagersModalOpen && (
         <ManagersModal
           onClose={() => setIsManagersModalOpen(false)}
+        />
+      )}
+
+      {/* рендеринг модального окна Контакты */}
+      {isContactsModalOpen && (
+        <ContactsModal
+          onClose={() => setIsContactsModalOpen(false)}
         />
       )}
 

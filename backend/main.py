@@ -211,7 +211,7 @@ def export_factories_to_excel(
 
 ##########################################
 
-# ТАБЛИЦА "СОТРУДНИКИ"
+# ТАБЛИЦА "СОТРУДНИКИ" ДЛЯ ОДНОЙ ФАБРИКИ
 
 # Эндпоинт для получения ВСЕХ сотрудников конкретной фабрики по её ИНН
 '''
@@ -413,3 +413,13 @@ def update_manager(
         )
     
     return update_manager
+
+##########################################
+# ТАБЛИЦА КОНТАКТЫ
+# Все контакты
+
+# GET - получить всех сотрудников (для модального окна контактов)
+@app.get("/all-employees/", response_model=list[schemas.Employee])
+def read_all_employees(db: Session = Depends(get_db)):
+    employees = crud.get_all_employees(db)
+    return employees
