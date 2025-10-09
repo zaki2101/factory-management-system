@@ -1,4 +1,4 @@
-// Для отображения таблицы Контакты
+// Для отображения таблицы Контакты (по конопке Контакты)
 
 import React, { useState, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
@@ -97,6 +97,39 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
   };
 
 
+  // Обработчик клика для переключения лида
+  const handleLeadToggle = async (contactId: number, currentLead: string) => {
+    try {
+      // Определяем новое значение: если было "+" -> "-", если "-" -> "+"
+      const newLeadValue = currentLead === "+" ? "-" : "+";
+    
+      // Получаем текущие данные контакта
+      const contact = contacts.find(c => c.id === contactId);
+      if (!contact) return;
+    
+      // Отправляем обновление на сервер
+      const response = await fetch(`http://localhost:8000/employees/${contactId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...contact,
+          lead: newLeadValue  // ← Новое значение lead
+        })
+      });
+
+      if (response.ok) {
+        // Обновляем локальные данные
+        await fetchContacts();
+      } else {
+        alert('Ошибка при обновлении статуса лида');
+     }
+    } catch (error) {
+      console.error('Ошибка:', error);
+      alert('Ошибка при обновлении статуса лида');
+    }
+  };
+
+
 
   // Загружаем контакты при открытии модального окна
   useEffect(() => {
@@ -141,6 +174,28 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
       sortable: true, 
       filter: true,
       editable: false  // Не редактируемое
+    },
+
+    {
+      field: 'lead',
+      headerName: 'ЛИД', 
+      width: 80,
+      cellRenderer: (params: any) => {
+        // Если lead = "+" - показываем галочку, иначе пусто
+        return params.value === "+" ? "✅" : "□";
+      },
+      // Делаем ячейку кликабельной
+      cellStyle: { 
+        'cursor': 'pointer', //меняет курсор на "руку" при наведении
+        'text-align': 'center' // центрирует галочку в ячейке
+      },
+      // обрабатывает клик по ячейке и вызывает функцию переключения
+      onCellClicked: (params: any) => {
+        handleLeadToggle(params.data.id, params.data.lead);
+      },
+      editable: false,  
+      sortable: true,
+      filter: true
     },
     { 
       field: 'employee', 

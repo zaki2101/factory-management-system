@@ -62,6 +62,7 @@ class EmployeeCreate(BaseModel):
     comment1: Optional[str] = None
     comment2: Optional[str] = None
     comment3: Optional[str] = None
+    lead: Optional[str] = "-"
 
 
 # Схема для возврата данных о сотруднике из БД

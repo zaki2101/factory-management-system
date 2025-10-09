@@ -45,6 +45,7 @@ class Employee(Base):  # Таблица "Сотрудники" (Контакты
     comment1 = Column(String, nullable=True)    # Комментарий 1
     comment2 = Column(String, nullable=True)    # Комментарий 2
     comment3 = Column(String, nullable=True)    # Комментарий 3
+    lead = Column(String, default="-")          # ЛИД "+" или "-"
 
 
 class ActivityType(Base):  # Модель "Виды деятельности"
