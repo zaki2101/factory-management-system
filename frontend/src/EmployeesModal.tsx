@@ -1,4 +1,5 @@
-// Модальное окно для вывода сотрудников предприятия
+// Модальное окно для вывода сотрудников предприятия из таблицы Фабрики
+// Вывод только для конкретного предприятия
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
@@ -24,6 +25,7 @@ interface Employee {
   comment1: string | null;
   comment2: string | null;
   comment3: string | null;
+  lead: string;
 }
 
 interface NewEmployee {
@@ -43,26 +45,55 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({ factoryInn, factoryName
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Загрузка сотрудников
-  // Загрузка сотрудников
-const fetchEmployees = useCallback(async () => {
-  try {
-    setLoading(true);
-    const response = await fetch(`http://localhost:8000/factories/${factoryInn}/employees`);
+  const fetchEmployees = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`http://localhost:8000/factories/${factoryInn}/employees`);
     
-    if (!response.ok) throw new Error('Ошибка загрузки данных');
+      if (!response.ok) throw new Error('Ошибка загрузки данных');
     
-    const data = await response.json();
-    setEmployees(data);
-  } catch (err) {
-    setError(err instanceof Error ? err.message : 'Неизвестная ошибка');
-  } finally {
-    setLoading(false);
-  }
-}, [factoryInn]);
+      const data = await response.json();
+      setEmployees(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Неизвестная ошибка');
+    } finally {
+      setLoading(false);
+    }
+  }, [factoryInn]);
 
-useEffect(() => {
-  if (factoryInn) fetchEmployees();
-}, [factoryInn, fetchEmployees]);
+  useEffect(() => {
+    if (factoryInn) fetchEmployees();
+  }, [factoryInn, fetchEmployees]);
+
+
+  // // Обработчик клика для переключения лида - 
+  // ВНИМАНИЕ дублирование кода, эта функция используется в ContactsModal
+  const handleLeadToggle = async (employeeId: number, currentLead: string) => {
+    try {
+      const newLeadValue = currentLead === "+" ? "-" : "+";
+      const employee = employees.find(e => e.id === employeeId);
+      if (!employee) return;
+    
+      const response = await fetch(`http://localhost:8000/employees/${employeeId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...employee,
+          lead: newLeadValue
+        })
+      });
+
+      if (response.ok) {
+        await fetchEmployees(); // Обновляем список сотрудников
+      } else {
+        alert('Ошибка при обновлении статуса лида');
+      }
+    } catch (error) {
+      console.error('Ошибка:', error);
+      alert('Ошибка при обновлении статуса лида');
+    }
+  };
+
 
   // Добавление нового сотрудника
   const handleAddEmployee = async (employeeData: NewEmployee) => {
@@ -94,148 +125,224 @@ useEffect(() => {
       console.error('Ошибка:', error);
       alert('Ошибка при добавлении сотрудника');
     }
-  };
-
-  // Функция сохранения изменений при редактировании ячейки
-  const handleCellValueChanged = async (params: any) => {
-    try {
-      const response = await fetch(`http://localhost:8000/employees/${params.data.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params.data)
-      });
-
-      if (!response.ok) {
-        alert('Ошибка сохранения изменений');
-        await fetchEmployees(); // Перезагружаем данные в случае ошибки
-        return;
-      }
-
-      console.log('Изменения сохранены:', params.data);
-    } catch (error) {
-      console.error('Ошибка сохранения:', error);
-      alert('Ошибка при сохранении изменений');
-      await fetchEmployees(); // Перезагружаем данные в случае ошибки
-    }
-  };    
-
-  // Колонки таблицы сотрудников
-  const columnDefs: ColDef[] = [
-    { 
-      field: 'employee', 
-      headerName: 'ФИО', 
-      width: 200, 
-      sortable: true, 
-      filter: true,
-      editable: true 
-    },
-    { 
-      field: 'position', 
-      headerName: 'Должность', 
-      width: 150, 
-      sortable: true, 
-      filter: true,
-      editable: true 
-    },
-    { 
-      field: 'phone', 
-      headerName: 'Телефон', 
-      width: 150, 
-      sortable: true, 
-      filter: true,
-      editable: true 
-    },
-    { 
-      field: 'email', 
-      headerName: 'Email', 
-      width: 200, 
-      sortable: true, 
-      filter: true,
-      editable: true 
-    },
-    { 
-      field: 'comment1', 
-      headerName: 'Комментарий 1', 
-      width: 150, 
-      sortable: true, 
-      filter: true,
-      editable: true 
-    },
-    { 
-      field: 'comment2', 
-      headerName: 'Комментарий 2', 
-      width: 150, 
-      sortable: true, 
-      filter: true,
-      editable: true 
-    },
-    { 
-      field: 'comment3', 
-      headerName: 'Комментарий 3', 
-      width: 150, 
-      sortable: true, 
-      filter: true,
-      editable: true 
-    },
-    {
-      field: 'actions',
-      headerName: 'Действия',
-      width: 120,
-      cellRenderer: (params: any) => (
-        <button 
-          onClick={() => handleDeleteEmployee(params.data.id)}
-          className="delete-btn"
-        >
-          🗑️ Удалить
-        </button>
-      ),
-      sortable: false,
-      filter: false,
-      editable: false
-    }
-  ];
-
-  const handleDeleteEmployee = async (employeeId: number) => {
-    if (!window.confirm('Удалить сотрудника?')) return;
-    
-    try {
-      const response = await fetch(`http://localhost:8000/employees/${employeeId}`, {
-        method: 'DELETE'
-      });
-      
-      if (response.ok) {
-        await fetchEmployees();
-      }
-    } catch (error) {
-      console.error('Ошибка удаления:', error);
-    }
-  };
-
-  // Компонент модального окна добавления сотрудника
-  const AddEmployeeModal: React.FC<{ onClose: () => void; onSave: (employee: NewEmployee) => void }> = ({ onClose, onSave }) => {
-    const [formData, setFormData] = useState({
-      employee: '',
-      position: '',
-      phone: '',
-      email: '',
-      comment1: '',
-      comment2: '',
-      comment3: ''
-    });
-
-    const handleSave = () => {
-      if (!formData.employee.trim()) {
-        alert('Введите ФИО сотрудника');
-        return;
-      }
-      onSave(formData);
     };
+
+    // Функция сохранения изменений при редактировании ячейки
+    const handleCellValueChanged = async (params: any) => {
+      try {
+        const response = await fetch(`http://localhost:8000/employees/${params.data.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params.data)
+        });
+
+        if (!response.ok) {
+          alert('Ошибка сохранения изменений');
+          await fetchEmployees(); // Перезагружаем данные в случае ошибки
+          return;
+        }
+
+        console.log('Изменения сохранены:', params.data);
+      } catch (error) {
+        console.error('Ошибка сохранения:', error);
+        alert('Ошибка при сохранении изменений');
+        await fetchEmployees(); // Перезагружаем данные в случае ошибки
+      }
+    };    
+
+    // Колонки таблицы сотрудников
+    const columnDefs: ColDef[] = [
+      {
+        field: 'lead',
+        headerName: 'ЛИД', 
+        width: 80,
+        cellRenderer: (params: any) => {
+          return params.value === "+" ? "✅" : "□";
+        },
+        cellStyle: { 
+          'cursor': 'pointer',
+          'text-align': 'center'
+        },
+        onCellClicked: (params: any) => {
+          handleLeadToggle(params.data.id, params.data.lead);
+        },
+        editable: false,
+        sortable: true,
+        filter: true
+      },
+
+      { 
+        field: 'employee', 
+        headerName: 'ФИО', 
+        width: 200, 
+        sortable: true, 
+        filter: true,
+        editable: true 
+      },
+      { 
+        field: 'position', 
+        headerName: 'Должность', 
+        width: 150, 
+        sortable: true, 
+        filter: true,
+        editable: true 
+      },
+      { 
+        field: 'phone', 
+        headerName: 'Телефон', 
+        width: 150, 
+        sortable: false, 
+        filter: false,
+        editable: true 
+      },
+      { 
+        field: 'email', 
+        headerName: 'Email', 
+        width: 200, 
+        sortable: false, 
+        filter: false,
+        editable: true 
+      },
+
+      { 
+        field: 'comment1', 
+        headerName: 'Комментарий', 
+        width: 250, 
+        sortable: true, 
+        filter: true,
+        editable: true,
+        cellStyle: { 
+          'white-space': 'normal',  // ← Разрешает перенос строк
+          'line-height': '1.4',      // ← Увеличивает межстрочный интервал
+          'text-align': 'left',  // ← Выравнивание по левому краю
+        },
+        autoHeight: true,           // ← Автоматическая высота строки (для многострочного текста)
+        cellEditor: 'agLargeTextCellEditor',
+        cellEditorPopup: true, 
+        /* cellEditorPopup: true - параметр AG Grid, который заставляет редактор ячейки
+         открываться во всплывающем окне поверх таблицы */
+        cellEditorParams: { 
+          maxLength: 500,        // максимальное количество символов
+          rows: 10,                 // количество строк
+        }
+
+      },
+      { 
+        field: 'comment2', 
+        headerName: 'Комментарий', 
+        width: 250, 
+        sortable: true, 
+        filter: true,
+        editable: true,
+        cellStyle: { 
+          'white-space': 'normal',  // ← Разрешает перенос строк
+          'line-height': '1.4',      // ← Увеличивает межстрочный интервал
+          'text-align': 'left',  // ← Выравнивание по левому краю
+        },
+        autoHeight: true,
+        cellEditor: 'agLargeTextCellEditor',
+        cellEditorPopup: true, 
+        cellEditorParams: { 
+          maxLength: 500,        
+          rows: 10,                 
+        }
+      },
+      { 
+        field: 'comment3', 
+        headerName: 'Комментарий', 
+        width: 250, 
+        sortable: true, 
+        filter: true,
+        editable: true,
+        cellStyle: { 
+          'white-space': 'normal',  // ← Разрешает перенос строк
+          'line-height': '1.4',
+          'text-align': 'left',  // ← Выравнивание по левому краю
+        },
+        autoHeight: true,
+        cellEditor: 'agLargeTextCellEditor',
+        cellEditorPopup: true, 
+        cellEditorParams: { 
+          maxLength: 500,        
+          rows: 10,                
+        }        
+      },
+
+      {
+        field: 'actions',
+        headerName: 'Действия',
+        width: 120,
+        cellRenderer: (params: any) => (
+          <button 
+            onClick={() => handleDeleteEmployee(params.data.id)}
+            className="delete-btn"
+          >
+            🗑️ Удалить
+          </button>
+        ),
+        sortable: false,
+        filter: false,
+        editable: false
+      }
+    ];
+
+    const handleDeleteEmployee = async (employeeId: number) => {
+      if (!window.confirm('Удалить сотрудника?')) return;
+    
+      try {
+        const response = await fetch(`http://localhost:8000/employees/${employeeId}`, {
+          method: 'DELETE'
+        });
+      
+        if (response.ok) {
+          await fetchEmployees();
+        }
+      } catch (error) {
+        console.error('Ошибка удаления:', error);
+      }
+    };
+
+    // Компонент модального окна добавления сотрудника
+    const AddEmployeeModal: React.FC<{ onClose: () => void; onSave: (employee: NewEmployee) => void }> = ({ onClose, onSave }) => {
+      const [formData, setFormData] = useState({
+        lead: "-",
+        employee: '',
+        position: '',
+        phone: '',
+        email: '',
+        comment1: '',
+        comment2: '',
+        comment3: ''
+      });
+
+      const handleSave = () => {
+        if (!formData.employee.trim()) {
+          alert('Введите ФИО сотрудника');
+        return;
+        }
+        onSave(formData);
+      };
 
     return (
       <div className="modal-overlay">
         <div className="modal-content">
-          <h3>Добавить сотрудника</h3>
+          <h3>Добавить сотрудника в {factoryName}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '15px' }}>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+              <span>Лид:</span>
+              <div 
+                onClick={() => setFormData({
+                  ...formData, 
+                  lead: formData.lead === "+" ? "-" : "+"
+                })}
+                className="lead-toggle"
+              >
+                {formData.lead === "+" ? "✅" : "□"}
+              </div>
+            </div>
+
+
             <input
               placeholder="ФИО *"
               value={formData.employee}
@@ -280,13 +387,9 @@ useEffect(() => {
             />
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={handleSave} style={{ 
-              padding: '8px 15px', 
-              background: '#4CAF50', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '4px' 
-            }}>
+            <button onClick={handleSave} 
+              className="save-button"
+            >
               Сохранить
             </button>
             <button onClick={onClose} style={{ 
@@ -316,26 +419,16 @@ useEffect(() => {
           <div>
             <button 
               onClick={() => setIsAddModalOpen(true)}
-              style={{ 
-                padding: '8px 15px', 
-                background: '#4CAF50', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '4px', 
-                marginRight: '10px',
-                cursor: 'pointer'
-              }}
+              className="save-button"
             >
               + Добавить сотрудника
             </button>
-            <button onClick={onClose} style={{
-              background: 'none',
-              border: 'none',
-              fontSize: '24px',
-              cursor: 'pointer'
-            }}>×</button>
+            <button onClick={onClose} className="cross-button">
+              ×
+            </button>
           </div>
         </div>
+        
         
         <div className="modal-body" style={{ 
           height: 'calc(100% - 80px)',

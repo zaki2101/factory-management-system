@@ -159,7 +159,7 @@ const ActivityTypesModal: React.FC<ActivityTypesModalProps> = ({ onClose }) => {
       <div className="modal-content">
         <div className="modal-header">
           <h3 style={{ margin: 0 }}>Справочник Виды деятельности</h3>
-          <button onClick={onClose}>×</button>
+          <button onClick={onClose} >×</button>
         </div>
         
         <div className="modal-body">

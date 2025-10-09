@@ -179,34 +179,16 @@ const ManagersModal: React.FC<ManagersModalProps> = ({ onClose }) => {
   ];
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content" style={{ width: '800px', height: '600px' }}>
-        <div className="modal-header" style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          padding: '10px',
-          //marginBottom: '5px',
-          //borderBottom: '1px solid #ddd'
-        }}>
+    <div className="modal-overlay"> {/* фон модального окна */}
+      <div className="modal-content" style={{width: '65vw'}}> {/* модальное окно */}
+        <div className="modal-header"> {/* шапка */}
           <h3 style={{ margin: 0 }}>Справочник Менеджеры</h3>
           <button onClick={onClose}>×</button>
         </div>
         
-        <div className="modal-body" style={{ 
-          height: 'calc(100% - 60px)',
-          display: 'flex',
-          flexDirection: 'column',
-          padding: '15px'
-        }}>
-          {/* Панель добавления */}
-          <div style={{ 
-            padding: '10px', 
-            border: '1px solid #ddd', 
-            borderRadius: '4px',
-            marginBottom: '15px'
-          }}>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div className="modal-body"> {/* тело модального окна */}
+         <div className="add-panel-in-modal"> {/* Панель добавления менеджера (сверху окна) */}
+            <div className="input-in-modal"> {/* контейнер полей */}
               <input
                 placeholder="Фамилия"
                 value={newManager.manager_name}
@@ -245,7 +227,7 @@ const ManagersModal: React.FC<ManagersModalProps> = ({ onClose }) => {
                 Добавить
               </button>
             </div>
-          </div>
+          </div> 
 
           {loading && <div>Загрузка...</div>}
           {error && <div className="error">{error}</div>}

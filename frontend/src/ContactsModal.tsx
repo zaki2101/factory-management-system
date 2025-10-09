@@ -241,7 +241,15 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
         'line-height': '1.4',      // ← Увеличивает межстрочный интервал
         'text-align': 'left',  // ← Выравнивание по левому краю
       },
-      autoHeight: true           // ← Автоматическая высота строки (для многострочного текста)
+      autoHeight: true,           // ← Автоматическая высота строки (для многострочного текста)
+      cellEditor: 'agLargeTextCellEditor',
+        cellEditorPopup: true, 
+        /* cellEditorPopup: true - параметр AG Grid, который заставляет редактор ячейки
+         открываться во всплывающем окне поверх таблицы */
+        cellEditorParams: { 
+          maxLength: 500,        // максимальное количество символов
+          rows: 10,                 // количество строк
+        }
     },
     
     { 
@@ -256,7 +264,13 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
         'line-height': '1.4',      // ← Увеличивает межстрочный интервал
         'text-align': 'left',  // ← Выравнивание по левому краю
       },
-      autoHeight: true        
+      autoHeight: true,
+      cellEditor: 'agLargeTextCellEditor',
+        cellEditorPopup: true, 
+        cellEditorParams: { 
+          maxLength: 500,        
+          rows: 10,                 
+        }        
     },
     { 
       field: 'comment3', 
@@ -270,7 +284,13 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
         'line-height': '1.4',
         'text-align': 'left',  // ← Выравнивание по левому краю
       },
-      autoHeight: true        
+      autoHeight: true,
+      cellEditor: 'agLargeTextCellEditor',
+        cellEditorPopup: true, 
+        cellEditorParams: { 
+          maxLength: 500,        
+          rows: 10,                 
+        }        
     }
   ];
 

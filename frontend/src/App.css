@@ -38,12 +38,52 @@
   border: none;                  /* Убираем стандартную рамку кнопки */
   border-radius: 4px;            /* Закругляем углы на 5px */
   cursor: pointer;               /* Меняем курсор на указатель при наведении */
-  font-size: 14px;               /* Размер шрифта 16px */
+  font-size: 14px;               /* Размер шрифта  */
 }
 /* Состояние при наведении на кнопку */
 .factory-button:hover {
   background: #1976D2;   
 }
+
+/* КНОПКИ добавление контактов, экспорт */
+.save-button {
+  background: #4CAF50;         /*  цвет фона */
+  color: white;                /* цвет текста */
+  padding: 10px 15px;            /* Внутренние отступы: 10px сверху/снизу, 20px слева/справа */
+  border: none;                  /* Убираем стандартную рамку кнопки */
+  border-radius: 4px;            /* Закругляем углы на 5px */
+  cursor: pointer;               /* Меняем курсор на указатель при наведении */
+  font-size: 14px;               /* Размер шрифта */
+}
+/* Состояние при наведении на кнопку */
+.save-button:hover {
+  background: #027406;   
+}
+
+/* Кнопка отмены */
+.cross-button {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #ffffff;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  position: absolute;    /* ← Добавляем */
+  top: 10px;            /* ← Отступ сверху */
+  right: 10px;          /* ← Отступ справа */
+}
+
+.cross-button:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
 
 /* Для кнопки справочников */
 .directory-button  {
@@ -75,7 +115,22 @@
   background: rgb(92, 241, 165);
 }
 
+/*  Для установки/снятия галочки - ЛИД*/
+.lead-toggle {
+  cursor: pointer;
+  font-size: 20px;
+  border: 1px solid #ccc;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+}
 
+.lead-toggle:hover {
+  background-color: #f5f5f5;
+}
 
 
 /* ФОН МОДАЛЬНОГО ОКНА */
@@ -98,10 +153,10 @@
   background: white;
   padding: 20px;                 /* Внутренние отступы 30px */
   border-radius: 10px;           /* Закругляем углы на 10px */
-  width: 800px;                  /* Ширина окна  */
-  height: 600px;
+  width: 80vw;                  /* Ширина окна  */
+  height: 95vh;
   max-width: 90%;                /* Но не более 90% ширины экрана */
-  max-height: 80%;               /* И не более 80% высоты экрана */
+  max-height: 90%;               /* И не более 80% высоты экрана */
   overflow-y: auto;              /* Добавляем прокрутку если контент не помещается */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* ← Тень для объема */
 }
@@ -111,6 +166,7 @@
   background: white;
   width: 98vw;                  /* Ширина окна  */
   height: 95vh;
+  border-radius: 10px;           /* Закругляем углы на 10px */
   overflow-y: auto;             /* Добавляем прокрутку если контент не помещается */
   display: flex;                /* Для фиксирования шапки */
   flex-direction: column;       /* Для фиксирования шапки */
@@ -157,7 +213,22 @@
   display: flex; 
   height: 800px;
   flex-direction: column;
-  padding: 15px;
+  padding: 15px; /* внутренние отступы */
+}
+
+/* Панель добавления записи в модальном окне*/
+.add-panel-in-modal {
+  padding: 10px;
+  border: 1px solid #ddd; 
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+/* input в модальном окне*/
+.input-in-modal {
+   display: flex;
+   gap: 10px;
+   align-items: center;
 }
 
 /* в EmployeesModal ???*/
