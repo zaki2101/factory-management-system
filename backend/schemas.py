@@ -23,7 +23,7 @@ class FactoryCreate(BaseModel):
     address: str
     n_empl: Optional[int] = None
     okved: str
-    type_factory: str  # Пока просто строка
+    type_factory: str  
     emails: Optional[str] = None
     website: Optional[str] = None
     phones: Optional[str] = None
@@ -33,6 +33,7 @@ class FactoryCreate(BaseModel):
     comment3: Optional[str] = None
     comment4: Optional[str] = None
     date_created: Optional[date] = None
+    at_work: Optional[str] = None
 
 
     #@validator('type_factory')
@@ -45,7 +46,7 @@ class FactoryCreate(BaseModel):
 # Схема для возврата данных из БД
 class Factory(FactoryCreate):
     id: int
-    #date_created: str  # ← Обязательное при возврате
+
 
     class Config:
         from_attributes = True

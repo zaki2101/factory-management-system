@@ -1,6 +1,6 @@
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AgGridReact } from 'ag-grid-react';  // ← Основной компонент
 import { ColDef } from 'ag-grid-community';    // ← Типы для колонок
 //import 'ag-grid-community/styles/ag-grid.css'; // ← Базовые стили
@@ -38,6 +38,7 @@ interface Factory {
   comment3: string;
   comment4: string;
   date_created: string;
+  at_work: string;
 }
 
 
@@ -58,7 +59,12 @@ const FactoryTable: React.FC<FactoryTableProps> = ({ activityTypeNames, managerN
   const [selectedFactoryInn, setSelectedFactoryInn] = useState<string>(''); // ИНН выбранной фабрики
   const [selectedFactoryName, setSelectedFactoryName] = useState<string>(''); // Название выбранной фабрики
 
-
+  /* useRef - это хук React, который создает "ссылку" на DOM-элемент или значение (ссылку на таблицу)
+  Без useRef мы не можем "достучаться" до внутренних методов AG Grid
+  useRef дает нам доступ к специальным функциям AG Grid, которые не доступны через обычные пропсы
+  Для изменения цвета строки при изменении поля at_work
+  */
+  const gridRef = useRef<AgGridReact>(null); // Создаем "пульт" для управления таблицей
 
   // Функция удаления
   const handleDelete = async (factoryId: number) => {
@@ -89,6 +95,15 @@ const FactoryTable: React.FC<FactoryTableProps> = ({ activityTypeNames, managerN
     // Если изменилось не поле INN - просто сохраняем
     if (params.column.colId !== 'inn') {
       await saveChanges(params.data);
+
+      /* Если изменено поле 'at_work' и ссылка на таблицу существует 
+      (gridRef инициализирован (таблица готова)) */
+      if (params.column.colId === 'at_work' && gridRef.current) {
+        /* Вызываем метод AG Grid для принудительной перерисовки всех строк
+         Это заставляет пересчитать условные стили (красный цвет для 'ДЦ') */
+        gridRef.current.api.redrawRows();
+      }
+
       return;
     }
 
@@ -111,7 +126,7 @@ const FactoryTable: React.FC<FactoryTableProps> = ({ activityTypeNames, managerN
       window.location.reload(); // ← Перезагружаем при ошибке
     }
   
-};
+  };
 
 // Вынесем сохранение в отдельную функцию
 const saveChanges = async (data: any) => {
@@ -207,6 +222,19 @@ const saveChanges = async (data: any) => {
       width: 120, 
       sortable: true, 
       filter: true,
+      editable: true, // включает редактирование
+      cellEditor: 'agSelectCellEditor',        // ← Выпадающий список
+      cellEditorParams: {
+        values: managerNames                   // ← Из справочника менеджеров
+      }
+    },
+
+    { 
+      field: 'at_work', 
+      headerName: 'В работе', 
+      width: 120, 
+      sortable: true, 
+      filter: true,
       editable: true,
       cellEditor: 'agSelectCellEditor',        // ← Выпадающий список
       cellEditorParams: {
@@ -285,6 +313,7 @@ const saveChanges = async (data: any) => {
       >
 
       <AgGridReact  // общие характеристики, могут быть переопределены для каждого поля
+        ref={gridRef} // Подключаем gridRef к таблице, gridRef.current будет содержать методы AG Grid API
         rowData={rowData}
         columnDefs={columnDefs}
         rowHeight={25}  // Высота всех строк
@@ -293,6 +322,7 @@ const saveChanges = async (data: any) => {
         suppressHorizontalScroll={false}      // Разрешить горизонтальную прокрутку ✅
         enableCellTextSelection={true}        // Можно выделять текст
         ensureDomOrder={true}                 // Оптимизация производительности
+
         defaultColDef={{                      // Настройки по умолчанию для ВСЕХ колонок
           //sortable: true,                     // Сортировка для всех колонок ✅
           //filter: true,                       // Фильтрация для всех колонок ✅
@@ -302,9 +332,25 @@ const saveChanges = async (data: any) => {
           //floatingFilter: false,               // Поля фильтра над заголовками
           //minWidth: 100,                      // Минимальная ширина колонки
           //flex: 1,                            // Гибкое растяжение
-          cellStyle: { border: '1px solid #ddd' } //   вертикальная разметка
+          //cellStyle: { border: '1px solid #ddd' } //   вертикальная разметка
+          
+          cellStyle: (params: any) => { // ← Функция, которая вызывается для каждой ячейки
+            const baseStyle = { border: '1px solid #ddd' }; // ← Базовый стиль для ВСЕХ ячеек
+            
+            if (params.data?.at_work === 'ДЦ') { // ← Проверка: если в строке at_work = 'ДЦ'
+              return {
+              ...baseStyle, // ← Копируем базовый стиль (границу)
+              color: 'red'  // ← Добавляем красный цвет текста
+              };
+            }
+            return baseStyle;
+          }
+
+
+
+
         }}
-        
+
         stopEditingWhenCellsLoseFocus={true}  // Сохранять при потере фокуса
       />
     </div>

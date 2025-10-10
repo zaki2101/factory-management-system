@@ -27,6 +27,7 @@ class Factory(Base):  # Таблица "Предприятия"
     comment3 = Column(String, nullable=True)
     comment4 = Column(String, nullable=True)
     date_created = Column(Date, default=date.today)
+    at_work = Column(String, nullable=True)
 
 
 class Employee(Base):  # Таблица "Сотрудники" (Контакты)
