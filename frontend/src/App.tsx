@@ -110,7 +110,7 @@ function App() {
   // Функция открытия модального окна Контакты
   const handleOpenContactsModal = () => { setIsContactsModalOpen(true); };
 
-
+/* старый вариант
   // Функция для экспорта в Excel предприятий (с фильтрами)
   const handleExportWithFilters = async (filters: { startDate: string; endDate: string }) => {
     try {
@@ -162,6 +162,10 @@ function App() {
     }
   };
 
+*/
+
+
+
 
 
   // onClick={() => setIsAddModalOpen(true)} меняет состояние на true → открывает модальное окно
@@ -180,10 +184,11 @@ function App() {
           {isLoading ? 'Загрузка...' : '🏢 Добавить предприятие'}
         </button>
 
-        {/* кнопка экспорта файла - открывает модальное окно */}
+        {/* кнопка экспорта файла - открывает модальное окно 
         <button className="factory-button" onClick={handleOpenExportModal} >
            💾 Сохранить в Excel
         </button>
+        */}
 
         {/* кнопка справочника видов деятельности - открывает модальное окно */}
         <button 
@@ -269,13 +274,13 @@ function App() {
         />
       )}
       {/*  модальное окно экспорта файла предприятий */}
-      {isExportModalOpen && (
+      {/*{isExportModalOpen && (
         <ExportModal
           onClose={handleCloseExportModal}
           onExport={handleExportWithFilters}
           isLoading={isLoading}
         />
-      )}
+      )} */}
 
       {/* модальное окно справочника видов деятельности */}
       {isActivityTypesModalOpen && (
@@ -307,3 +312,4 @@ export default App;
 
 
 
+//onExport={handleExportWithFilters}

@@ -5,6 +5,7 @@ import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
 
 import './App.css';
+import { RU_LOCALE_TEXT } from './agGridRussian'; // Русская локализация для AG Grid
 
 // Интерфейс для данных сотрудника (контакта)
 interface Contact {
@@ -74,6 +75,8 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
     }
   };
 
+
+
   // Функция удаления записи -  запрашивает подтверждение, отправляет DELETE-запрос и обновляет таблицу
   const handleDeleteContact = async (contactId: number) => {
   // Подтверждение удаления
@@ -117,26 +120,32 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
         })
       });
 
-      if (response.ok) {
+      //if (response.ok) {
         // Обновляем локальные данные
-        await fetchContacts();
+        //await fetchContacts();
+
+      if (response.ok) {
+        // ОБНОВЛЯЕМ ЛОКАЛЬНЫЕ ДАННЫЕ вместо полной перезагрузки
+        setContacts(prevContacts => 
+          prevContacts.map(contact => 
+            contact.id === contactId 
+              ? { ...contact, lead: newLeadValue } // меняем только поле lead
+              : contact
+          )
+        );
       } else {
         alert('Ошибка при обновлении статуса лида');
-     }
+      }
     } catch (error) {
       console.error('Ошибка:', error);
       alert('Ошибка при обновлении статуса лида');
     }
   };
 
-
-
   // Загружаем контакты при открытии модального окна
   useEffect(() => {
     fetchContacts();
   }, []);
-
-
 
   // Колонки таблицы AG Grid
   const columnDefs: ColDef[] = [
@@ -318,6 +327,7 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
           {!loading && !error && (
             <div className="ag-theme-quartz" style={{ height: '100%', width: '100%' }}>
               <AgGridReact
+                localeText={RU_LOCALE_TEXT} // Русская локализация для AG Grid
                 rowData={contacts}
                 columnDefs={columnDefs}
                 rowHeight={40}

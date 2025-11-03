@@ -19,6 +19,7 @@ Omit<Factory, 'id'> - тип без поля id (так как id создает
 import React, { useState } from 'react';
 
 import './App.css';
+//import { RU_LOCALE_TEXT } from './agGridRussian'; // Русская локализация для AG Grid
 
 // Определяем интерфейс для пропсов компонента
 interface AddFactoryModalProps {

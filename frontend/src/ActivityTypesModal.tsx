@@ -5,6 +5,7 @@ import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
 
 import './App.css';
+import { RU_LOCALE_TEXT } from './agGridRussian'; // Русская локализация для AG Grid
 
 interface ActivityType {
   id: number;
@@ -204,6 +205,7 @@ const ActivityTypesModal: React.FC<ActivityTypesModalProps> = ({ onClose }) => {
           {!loading && !error && (
             <div className="ag-theme-quartz" style={{ flex: 1 }}>
               <AgGridReact
+                localeText={RU_LOCALE_TEXT} // Русская локализация для AG Grid
                 rowData={activityTypes}
                 columnDefs={columnDefs}
                 rowHeight={40}

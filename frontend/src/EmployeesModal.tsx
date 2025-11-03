@@ -6,7 +6,7 @@ import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
 
 import './App.css';
-
+import { RU_LOCALE_TEXT } from './agGridRussian'; // Русская локализация для AG Grid
 
 interface EmployeesModalProps {
   factoryInn: string; // передаем ИНН из таблицы Фабрики
@@ -84,14 +84,21 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({ factoryInn, factoryName
       });
 
       if (response.ok) {
-        await fetchEmployees(); // Обновляем список сотрудников
-      } else {
-        alert('Ошибка при обновлении статуса лида');
+        // ОБНОВЛЯЕМ ЛОКАЛЬНЫЕ ДАННЫЕ вместо полной перезагрузки
+        setEmployees(prevEmployees => 
+          prevEmployees.map(employee => 
+            employee.id === employeeId 
+              ? { ...employee, lead: newLeadValue } // меняем только поле lead
+              : employee
+          )
+         );
       }
+
     } catch (error) {
       console.error('Ошибка:', error);
       alert('Ошибка при обновлении статуса лида');
     }
+
   };
 
 
@@ -440,6 +447,7 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({ factoryInn, factoryName
           {!loading && !error && (
             <div className="ag-theme-quartz" style={{ height: '100%', width: '100%' }}>
               <AgGridReact
+                localeText={RU_LOCALE_TEXT} // Русская локализация для AG Grid
                 rowData={employees}
                 columnDefs={columnDefs}
                 rowHeight={35}

@@ -1,13 +1,14 @@
 
-
 import React, { useState, useEffect, useRef } from 'react';
-import { AgGridReact } from 'ag-grid-react';  // ← Основной компонент
+import { AgGridReact } from 'ag-grid-react';  // ← Таблицы
 import { ColDef } from 'ag-grid-community';    // ← Типы для колонок
+import * as XLSX from 'xlsx';  // Библиотека для работы с Excel файлами (экспорт/импорт)
+
 //import 'ag-grid-community/styles/ag-grid.css'; // ← Базовые стили
 //import 'ag-grid-community/styles/ag-theme-quartz.css'; // ← Тема Quartz
 
 import EmployeesModal from './EmployeesModal'; // Импортируем компонент модального окна 
-
+import { RU_LOCALE_TEXT } from './agGridRussian'; // Русская локализация для AG Grid
 
 import { ModuleRegistry, AllCommunityModule} from 'ag-grid-community';
 import './App.css';
@@ -44,7 +45,7 @@ interface Factory {
 
 const FactoryTable: React.FC<FactoryTableProps> = ({ activityTypeNames, managerNames  }) => {
   // хук состояния React
-  // rowData — переменная, которая хранит текущие данные таблицы 
+  // rowData — переменная, которая хранит текущие данные таблицы (локальные данные, которые уже загружены в память браузера)
   // setRowData — функция для обновления этих данных
   // useState<Factory[]>([]) — инициализирует состояние:
     // <Factory[]> — тип данных: массив объектов Factory
@@ -65,6 +66,48 @@ const FactoryTable: React.FC<FactoryTableProps> = ({ activityTypeNames, managerN
   Для изменения цвета строки при изменении поля at_work
   */
   const gridRef = useRef<AgGridReact>(null); // Создаем "пульт" для управления таблицей
+
+
+  // Функция экспорта текущего отфильтрованного вида в Excel
+  const handleExportCurrentView = async () => {
+    try {
+      // Проверяем что таблица готова
+      if (!gridRef.current) {
+        alert('Таблица не готова для экспорта');
+        return;
+      }
+
+      // Получаем ОТФИЛЬТРОВАННЫЕ и ОТСОРТИРОВАННЫЕ данные
+      const filteredNodes = gridRef.current.api.getRenderedNodes();
+      const filteredData = filteredNodes.map(node => node.data);
+
+      // Если нет данных для экспорта
+      if (filteredData.length === 0) {
+        alert('Нет данных для экспорта');
+        return;
+      }
+
+      // Создаем Excel файл
+      const worksheet = XLSX.utils.json_to_sheet(filteredData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Предприятия");
+    
+      // Формируем имя файла с текущей датой
+      const fileName = `fabriki_${new Date().toISOString().split('T')[0]}.xlsx`;
+    
+      // Скачиваем файл
+      XLSX.writeFile(workbook, fileName);
+    
+      console.log('Успешно экспортировано записей:', filteredData.length);
+    
+    } catch (error) {
+      console.error('Ошибка экспорта:', error);
+      alert('Ошибка при экспорте в Excel');
+    }
+  };
+
+
+
 
   // Функция удаления
   const handleDelete = async (factoryId: number) => {
@@ -152,13 +195,8 @@ const saveChanges = async (data: any) => {
     window.location.reload();
   }
 };
-
-    
    
   //
-
-
-
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -301,6 +339,17 @@ const saveChanges = async (data: any) => {
 
   return ( 
     <> {/*возвращается два элемента на одном уровне: таблица и модальное окно*/ }
+
+      {/*  КНОПКА ЭКСПОРТА  */}
+      <div style={{ 
+        marginBottom: '15px', 
+        textAlign: 'right',
+        padding: '0 10px'  // чтобы была на одном уровне с таблицей
+      }}></div>
+      <button className="factory-button" onClick={handleExportCurrentView} >
+           💾 Сохранить в Excel
+      </button>
+
       <div 
         className="ag-theme-quartz" 
           style={{ 
@@ -313,6 +362,7 @@ const saveChanges = async (data: any) => {
       >
 
       <AgGridReact  // общие характеристики, могут быть переопределены для каждого поля
+        localeText={RU_LOCALE_TEXT} // Русская локализация для AG Grid
         ref={gridRef} // Подключаем gridRef к таблице, gridRef.current будет содержать методы AG Grid API
         rowData={rowData}
         columnDefs={columnDefs}
@@ -345,12 +395,7 @@ const saveChanges = async (data: any) => {
             }
             return baseStyle;
           }
-
-
-
-
         }}
-
         stopEditingWhenCellsLoseFocus={true}  // Сохранять при потере фокуса
       />
     </div>

@@ -4,6 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
  
+import { RU_LOCALE_TEXT } from './agGridRussian'; // Русская локализация для AG Grid
+import './App.css';
 
 interface Manager {
   id: number;
@@ -235,6 +237,7 @@ const ManagersModal: React.FC<ManagersModalProps> = ({ onClose }) => {
           {!loading && !error && (
             <div className="ag-theme-quartz" style={{ flex: 1 }}>
               <AgGridReact
+                localeText={RU_LOCALE_TEXT} // Русская локализация для AG Grid
                 rowData={Managers}
                 columnDefs={columnDefs}
                 rowHeight={40}
