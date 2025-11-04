@@ -18,6 +18,12 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 interface FactoryTableProps {
   activityTypeNames: string[];  // Пропс со списком названий видов деятельности
   managerNames: string[];  // Пропс со списком менеджеров
+
+  // пропсы для модальных окон
+  onOpenAddModal: () => void;
+  onOpenActivityTypesModal: () => void;
+  onOpenManagersModal: () => void;
+  onOpenContactsModal: () => void;
 }
 
 interface Factory {
@@ -42,14 +48,21 @@ interface Factory {
   at_work: string;
 }
 
-
-const FactoryTable: React.FC<FactoryTableProps> = ({ activityTypeNames, managerNames  }) => {
   // хук состояния React
   // rowData — переменная, которая хранит текущие данные таблицы (локальные данные, которые уже загружены в память браузера)
   // setRowData — функция для обновления этих данных
   // useState<Factory[]>([]) — инициализирует состояние:
-    // <Factory[]> — тип данных: массив объектов Factory
-    // [] — начальное значение: пустой массив
+  // <Factory[]> — тип данных: массив объектов Factory
+  // [] — начальное значение: пустой массив
+const FactoryTable: React.FC<FactoryTableProps> = ({ 
+  activityTypeNames, 
+  managerNames,
+  onOpenAddModal,
+  onOpenActivityTypesModal, 
+  onOpenManagersModal,
+  onOpenContactsModal
+  }) => {
+
   const [rowData, setRowData] = useState<Factory[]>([]);
 
   const [loading, setLoading] = useState(true); // ← Статус загрузки
@@ -171,88 +184,88 @@ const FactoryTable: React.FC<FactoryTableProps> = ({ activityTypeNames, managerN
   
   };
 
-// Вынесем сохранение в отдельную функцию
-const saveChanges = async (data: any) => {
-  try {
-    const response = await fetch(`http://localhost:8000/factories/${data.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
+  // Вынесем сохранение в отдельную функцию
+  const saveChanges = async (data: any) => {
+    try {
+      const response = await fetch(`http://localhost:8000/factories/${data.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
 
-    if (!response.ok) {
-      // Если сервер вернул ошибку 
-      //const errorData = await response.json();
-      alert(`Ошибка сохранения. Недопустимое значение!`);
-      window.location.reload(); // ← Перезагружаем при ЛЮБОЙ ошибке
-      return;
+      if (!response.ok) {
+        // Если сервер вернул ошибку 
+        //const errorData = await response.json();
+        alert(`Ошибка сохранения. Недопустимое значение!`);
+        window.location.reload(); // ← Перезагружаем при ЛЮБОЙ ошибке
+        return;
+      }
+
+      console.log('Изменения сохранены:', data);
+    } catch (error) {
+      console.error('Ошибка сохранения:', error);
+      alert('Ошибка при сохранении изменений');
+      window.location.reload();
+    }
+    };
+   
+    //
+    useEffect(() => {
+      setLoading(true);
+      setError(null);
+
+      fetch('http://localhost:8000/all-factories/')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Ошибка загрузки данных');
+          }
+          return response.json();
+        })
+        .then(data => {
+          setRowData(data);
+          setLoading(false);
+        })
+        .catch(error => {
+          console.error('Ошибка:', error);
+          setError('Не удалось загрузить данные');
+          setLoading(false);
+        })  
+    }, []);
+
+    // Обработчик клика по кнопке "i"
+    const handleInfoClick = (inn: string, name: string) => {
+      setSelectedFactoryInn(inn); // Сохраняем ИНН выбранной фабрики
+      setSelectedFactoryName(name); // Сохраняем название для заголовка модалки
+      setIsEmployeesModalOpen(true); // Открываем модальное окно
+    };
+
+
+    // Показываем заглушки во время загрузки
+    if (loading) {
+      return <div className="loading">Загрузка данных...</div>;
     }
 
-    console.log('Изменения сохранены:', data);
-  } catch (error) {
-    console.error('Ошибка сохранения:', error);
-    alert('Ошибка при сохранении изменений');
-    window.location.reload();
-  }
-};
-   
-  //
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-
-    fetch('http://localhost:8000/all-factories/')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Ошибка загрузки данных');
-        }
-        return response.json();
-      })
-      .then(data => {
-        setRowData(data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Ошибка:', error);
-        setError('Не удалось загрузить данные');
-        setLoading(false);
-      })  
-  }, []);
-
-  // Обработчик клика по кнопке "i"
-  const handleInfoClick = (inn: string, name: string) => {
-    setSelectedFactoryInn(inn); // Сохраняем ИНН выбранной фабрики
-    setSelectedFactoryName(name); // Сохраняем название для заголовка модалки
-    setIsEmployeesModalOpen(true); // Открываем модальное окно
-  };
+    if (error) {
+      return <div className="error">Ошибка: {error}</div>;
+    }
 
 
-  // Показываем заглушки во время загрузки
-  if (loading) {
-    return <div className="loading">Загрузка данных...</div>;
-  }
-
-  if (error) {
-    return <div className="error">Ошибка: {error}</div>;
-  }
-
-
-  const columnDefs: ColDef[] = [
-    {
-      field: 'actions',
-      headerName: '❌',
-      width: 60,
-      cellRenderer: (params: any) => (
-        <button 
-          onClick={() => handleDelete(params.data.id)}
-          className="delete-button"
-        >✖️
-        </button>
-      ),
-      sortable: false,
-      filter: false,
-      editable: false
-    },
+    const columnDefs: ColDef[] = [
+      {
+        field: 'actions',
+        headerName: '❌',
+        width: 60,
+        cellRenderer: (params: any) => (
+          <button 
+            onClick={() => handleDelete(params.data.id)}
+            className="delete-button"
+          >✖️
+          </button>
+        ),
+        sortable: false,
+        filter: false,
+        editable: false
+      },
 
     { 
       field: 'manager', 
@@ -338,83 +351,105 @@ const saveChanges = async (data: any) => {
    tooltipField: 'description'. Подсказка при наведении */
 
   return ( 
-    <> {/*возвращается два элемента на одном уровне: таблица и модальное окно*/ }
+  <> {/*возвращается два элемента на одном уровне: таблица и модальное окно*/ }
+    {/* ШАПКА С ЗАГОЛОВКОМ И ВСЕМИ КНОПКАМИ */}
+    <div className="header">
+      {/* Заголовок */}
+      <h2 style={{ margin: 0, color: '#333' }}>Сегмент Фабрика</h2>
 
-      {/*  КНОПКА ЭКСПОРТА  */}
-      <div style={{ 
-        marginBottom: '15px', 
-        textAlign: 'right',
-        padding: '0 10px'  // чтобы была на одном уровне с таблицей
-      }}></div>
-      <button className="factory-button" onClick={handleExportCurrentView} >
+      {/* Группа кнопок */}
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        {/* Кнопка добавления предприятия */}
+        <button 
+          className="factory-button"
+          onClick={onOpenAddModal}
+        >
+          🏢 Добавить предприятие
+        </button>
+
+        {/* Кнопка справочника видов деятельности */}
+        <button 
+          className="directory-button"
+          onClick={onOpenActivityTypesModal}
+          title="Справочник Виды деятельности"
+        >
+         🛠️ Виды деятельности
+        </button>
+
+        {/* Кнопка справочника менеджеров */}
+        <button 
+          className="directory-button"
+          onClick={onOpenManagersModal}
+          title="Справочник Менеджеры" 
+        >
+          👤👤 Менеджеры
+        </button>
+
+        {/* Кнопка контактов */}
+        <button className="contacts-button" 
+          onClick={onOpenContactsModal} >
+          📞 Контакты
+        </button>
+
+        {/* КНОПКА ЭКСПОРТА */}
+        <button className="factory-button" onClick={handleExportCurrentView} >
            💾 Сохранить в Excel
-      </button>
+        </button>
+      </div>
+    </div>
 
-      <div 
-        className="ag-theme-quartz" 
-          style={{ 
-            height: '100vh',         // 100% высоты экрана
-            width: '100%',          // Вся доступная ширина
-            //margin: '0 auto',
-            overflow: 'auto',        // полосы прокрутки
-            marginBottom: '15px'     // отступ снизу
-          }}
-      >
-
-      <AgGridReact  // общие характеристики, могут быть переопределены для каждого поля
-        localeText={RU_LOCALE_TEXT} // Русская локализация для AG Grid
-        ref={gridRef} // Подключаем gridRef к таблице, gridRef.current будет содержать методы AG Grid API
+    {/* Таблица */}      
+    <div 
+      className="ag-theme-quartz" 
+      style={{ 
+        height: '100vh',
+        width: '100%',
+        overflow: 'auto',
+        marginBottom: '15px'
+      }}
+    >
+      <AgGridReact
+        localeText={RU_LOCALE_TEXT}
+        ref={gridRef}
         rowData={rowData}
         columnDefs={columnDefs}
-        rowHeight={25}  // Высота всех строк
-        onCellValueChanged={onCellValueChanged} // Обработчик изменения значения ячейки (автосохранение) 
-        domLayout="normal"                    // Стандартный layout с прокруткой
-        suppressHorizontalScroll={false}      // Разрешить горизонтальную прокрутку ✅
-        enableCellTextSelection={true}        // Можно выделять текст
-        ensureDomOrder={true}                 // Оптимизация производительности
-
-        defaultColDef={{                      // Настройки по умолчанию для ВСЕХ колонок
-          //sortable: true,                     // Сортировка для всех колонок ✅
-          //filter: true,                       // Фильтрация для всех колонок ✅
-          resizable: true,                    // Изменение ширины для всех колонок ✅
-          editable: true,                     // ← Включаем редактирование для всех колонок
-          singleClickEdit: true,               // ← Редактирование по одному клику
-          //floatingFilter: false,               // Поля фильтра над заголовками
-          //minWidth: 100,                      // Минимальная ширина колонки
-          //flex: 1,                            // Гибкое растяжение
-          //cellStyle: { border: '1px solid #ddd' } //   вертикальная разметка
-          
-          cellStyle: (params: any) => { // ← Функция, которая вызывается для каждой ячейки
-            const baseStyle = { border: '1px solid #ddd' }; // ← Базовый стиль для ВСЕХ ячеек
-            
-            if (params.data?.at_work === 'ДЦ') { // ← Проверка: если в строке at_work = 'ДЦ'
+        rowHeight={25}
+        onCellValueChanged={onCellValueChanged}
+        domLayout="normal"
+        suppressHorizontalScroll={false}
+        enableCellTextSelection={true}
+        ensureDomOrder={true}
+        defaultColDef={{
+          resizable: true,
+          editable: true,
+          singleClickEdit: true,
+          cellStyle: (params: any) => {
+            const baseStyle = { border: '1px solid #ddd' };
+            if (params.data?.at_work === 'ДЦ') {
               return {
-              ...baseStyle, // ← Копируем базовый стиль (границу)
-              color: 'red'  // ← Добавляем красный цвет текста
+                ...baseStyle,
+                color: 'red'
               };
             }
             return baseStyle;
           }
         }}
-        stopEditingWhenCellsLoseFocus={true}  // Сохранять при потере фокуса
+        stopEditingWhenCellsLoseFocus={true}
       />
     </div>
     
     {/* Условный рендеринг модального окна сотрудников */}
-    {/* Хранит ИНН предприятия, для которого нужно показать сотрудников */}
-    {/* Хранит название предприятия */}
     {isEmployeesModalOpen && (
       <EmployeesModal
         factoryInn={selectedFactoryInn}   
         factoryName={selectedFactoryName} 
         onClose={() => setIsEmployeesModalOpen(false)}
       />
-      )}
-    </>
-
-
+    )}
+  </>
   );
-};
+}
+
 
 export default FactoryTable;
 export type { Factory };  // ← Явно экспортируем тип

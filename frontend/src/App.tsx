@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import FactoryTable from './FactoryTable';
 
 import AddFactoryModal from './AddFactoryModal'; // подключение компонента модального окна
-import ExportModal from './ExportModal'; // подключение модального окна для сохранения предприятий в файл
+//import ExportModal from './ExportModal'; // подключение модального окна для сохранения предприятий в файл
 
 import ActivityTypesModal from './ActivityTypesModal'; // подключение модального окна видов деятельности
 import ManagersModal from './ManagersModal'; // подключение модального окна менеджеров
@@ -12,14 +12,22 @@ import { Factory } from './FactoryTable';
 import ContactsModal from './ContactsModal'; // подключение модального окна по конпке Контакты
 import './App.css';
 
+/*<FactoryTable 
+  activityTypeNames={activityTypeNames} 
+  managerNames={managerNames}
+  onOpenAddModal={() => setIsAddModalOpen(true)}
+  onOpenActivityTypesModal={handleOpenActivityTypesModal}
+  onOpenManagersModal={handleOpenManagersModal}
+  onOpenContactsModal={handleOpenContactsModal}
+/>
+*/
+
+
 function App() {
   // Создание состояния для модального окна
   // isAddModalOpen хранит true/false (открыто/закрыто окно)
   //  setIsAddModalOpen меняет это значение
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
-  // Состояние для модального окна экспорта файла предприятий
-  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const [isLoading] = useState(false);
   const [error] = useState<string | null>(null);
@@ -39,6 +47,11 @@ function App() {
   */
   const [activityTypeNames, setActivityTypeNames] = useState<string[]>([]);
 
+/* **********************************
+  Менеджеры выгружаются при старте, простая реализация, т.к
+  справочник редко корректируется, сохраняем только названия
+  */
+  const [managerNames, setManagerNames] = useState<string[]>([]);
 
   const fetchActivityTypes = async () => {
     try {
@@ -54,17 +67,14 @@ function App() {
     }
   };
 
+  /*
   // Загружаем один раз при запуске
   useEffect(() => {
     fetchActivityTypes();
   }, []);
 
+*/
 
-/* **********************************
-  Менеджеры выгружаются при старте, простая реализация, т.к
-  справочник редко корректируется, сохраняем только названия
-  */
-  const [managerNames, setManagerNames] = useState<string[]>([]);
 
   const fetchManagers = async () => {
     try {
@@ -82,90 +92,19 @@ function App() {
 
   // Загружаем один раз при запуске
   useEffect(() => {
+    fetchActivityTypes();
     fetchManagers();
   }, []);
 
 
   // Функция открытия модального окна справочника видов деятельности
-  const handleOpenActivityTypesModal = () => {
-    setIsActivityTypesModalOpen(true);
-  };
+  const handleOpenActivityTypesModal = () => { setIsActivityTypesModalOpen(true); };
 
   // Функция открытия модального окна справочника менеджеров
-  const handleOpenManagersModal = () => {
-    setIsManagersModalOpen(true);
-  };
-
-
-  // Функция открытия модального окна экспорта предприятий
-  const handleOpenExportModal = () => {
-    setIsExportModalOpen(true);
-  };
-
-  // Функция закрытия модального окна экспорта предприятий
-  const handleCloseExportModal = () => {
-    setIsExportModalOpen(false);
-  };
+  const handleOpenManagersModal = () => { setIsManagersModalOpen(true); };
 
   // Функция открытия модального окна Контакты
   const handleOpenContactsModal = () => { setIsContactsModalOpen(true); };
-
-/* старый вариант
-  // Функция для экспорта в Excel предприятий (с фильтрами)
-  const handleExportWithFilters = async (filters: { startDate: string; endDate: string }) => {
-    try {
-      // 1. Формируем URL с параметрами фильтрации
-      const params = new URLSearchParams();
-      if (filters.startDate) params.append('start_date', filters.startDate);
-      if (filters.endDate) params.append('end_date', filters.endDate);
-    
-      const url = `http://localhost:8000/export/factories/excel?${params.toString()}`;
-      console.log('Export URL:', url); // Для отладки
-
-      // 2. Делаем запрос к НОВОМУ URL с параметрами
-      const response = await fetch(url); // ← Используем url с параметрами!
-    
-      if (!response.ok) {
-        throw new Error('Ошибка при экспорте');
-      }
-
-      // 3. Создаем blob из ответа и запускаем скачивание
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob); // ← Переименовал переменную!
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = downloadUrl;
-    
-      // 4. Извлекаем имя файла из заголовков ответа или генерируем
-      const contentDisposition = response.headers.get('content-disposition');
-      let filename = 'fabriki_export.xlsx';
-    
-      if (contentDisposition) {
-        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
-        if (filenameMatch) {
-          filename = filenameMatch[1];
-        }
-      }
-    
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(downloadUrl);
-      document.body.removeChild(a);
-    
-      // 5. Закрываем модальное окно после успешного экспорта
-      setIsExportModalOpen(false);
-    
-    } catch (error) {
-      console.error('Ошибка экспорта:', error);
-      alert('Ошибка при экспорте в Excel');
-    }
-  };
-
-*/
-
-
-
 
 
   // onClick={() => setIsAddModalOpen(true)} меняет состояние на true → открывает модальное окно
@@ -174,58 +113,16 @@ function App() {
       {/* Сообщение об ошибке */}
       {error && <div className="error-message">{error}</div>}
 
-      <div className="header">
-        <h2>Сегмент Фабрика</h2>
-        <button 
-          className="factory-button"
-          onClick={() => setIsAddModalOpen(true)}
-          disabled={isLoading} 
-        >
-          {isLoading ? 'Загрузка...' : '🏢 Добавить предприятие'}
-        </button>
-
-        {/* кнопка экспорта файла - открывает модальное окно 
-        <button className="factory-button" onClick={handleOpenExportModal} >
-           💾 Сохранить в Excel
-        </button>
-        */}
-
-        {/* кнопка справочника видов деятельности - открывает модальное окно */}
-        <button 
-          className="directory-button"
-          onClick={handleOpenActivityTypesModal}
-          title="Справочник Виды деятельности"
-        >
-         🛠️ Виды деятельности
-        </button>
-
-        {/* кнопка справочника менеджеров - открывает модальное окно */}
-        <button 
-          className="directory-button"
-          onClick={handleOpenManagersModal}
-          title="Справочник Менеджеры" 
-        >
-          👤👤 Менеджеры
-        </button>
-
-        {/* кнопка перехода в таблицу Контакты - открывает модальное окно */}
-        <button className="contacts-button" 
-          onClick={handleOpenContactsModal} >
-          📞 Контакты
-        </button> 
-
-      </div>
-      
-      {/* Таблица - растягивается на оставшееся пространство */}
-      <div style={{ flex: 1, minHeight: 0 }}></div>
       <FactoryTable 
         activityTypeNames={activityTypeNames} 
         managerNames={managerNames}
+        onOpenAddModal={() => setIsAddModalOpen(true)}
+        onOpenActivityTypesModal={handleOpenActivityTypesModal}
+        onOpenManagersModal={handleOpenManagersModal}
+        onOpenContactsModal={handleOpenContactsModal}
       />
       {/* activityTypeNames - список видов деятельности
-          managerNames - список менеджеров
-      */}
-
+          managerNames - список менеджеров. */}  
 
       {/* Модальное окно добавления фабрики */}
       {isAddModalOpen && (
@@ -273,15 +170,7 @@ function App() {
           isLoading={isLoading} 
         />
       )}
-      {/*  модальное окно экспорта файла предприятий */}
-      {/*{isExportModalOpen && (
-        <ExportModal
-          onClose={handleCloseExportModal}
-          onExport={handleExportWithFilters}
-          isLoading={isLoading}
-        />
-      )} */}
-
+      
       {/* модальное окно справочника видов деятельности */}
       {isActivityTypesModalOpen && (
         <ActivityTypesModal
@@ -298,11 +187,8 @@ function App() {
 
       {/* рендеринг модального окна Контакты */}
       {isContactsModalOpen && (
-        <ContactsModal
-          onClose={() => setIsContactsModalOpen(false)}
-        />
+        <ContactsModal onClose={() => setIsContactsModalOpen(false)} />
       )}
-
     </div>
   );
 }
