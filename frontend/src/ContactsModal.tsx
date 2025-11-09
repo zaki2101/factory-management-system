@@ -1,8 +1,9 @@
 // Для отображения таблицы Контакты (по конопке Контакты)
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { ColDef } from 'ag-grid-community';
+import * as XLSX from 'xlsx';  // Библиотека для работы с Excel файлами (экспорт/импорт)
 
 import './App.css';
 import { RU_LOCALE_TEXT } from './agGridRussian'; // Русская локализация для AG Grid
@@ -33,6 +34,61 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
   const [loading, setLoading] = useState(true);
   // Состояние для ошибок
   const [error, setError] = useState<string | null>(null);
+
+  const gridRef = useRef<AgGridReact>(null); 
+
+
+  // Функция экспорта текущего отфильтрованного вида контактов в Excel
+  const handleExportContacts = async () => {
+    try {
+      if (!gridRef.current) {
+        alert('Таблица не готова для экспорта');
+        return;
+      }
+
+      // Получаем ОТФИЛЬТРОВАННЫЕ и ОТСОРТИРОВАННЫЕ данные
+      const filteredNodes = gridRef.current.api.getRenderedNodes();
+      const filteredData = filteredNodes.map(node => node.data);
+
+      if (filteredData.length === 0) {
+        alert('Нет данных для экспорта');
+        return;
+      }
+
+      // ПРЕОБРАЗУЕМ ДАННЫЕ: заменяем английские ключи на русские названия
+      const dataWithRussianHeaders = filteredData.map(contact => ({
+        'ИНН': contact.inn,
+        'Наименование компании': contact.name_factory,
+        'ЛИД': contact.lead,
+        'ФИО сотрудника': contact.employee,
+        'Должность': contact.position,
+        'Телефон': contact.phone,
+        'Email': contact.email,
+        'Комментарий 1': contact.comment1,
+        'Комментарий 2': contact.comment2,
+        'Комментарий 3': contact.comment3
+      }));
+
+      // Создаем Excel с русскими заголовками
+      const worksheet = XLSX.utils.json_to_sheet(dataWithRussianHeaders);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Контакты");
+    
+      // Формируем имя файла с текущей датой
+      const fileName = `kontakty_${new Date().toISOString().split('T')[0]}.xlsx`;
+    
+      // Скачиваем файл
+      XLSX.writeFile(workbook, fileName);
+    
+      console.log('Успешно экспортировано контактов:', filteredData.length);
+    
+    } catch (error) {
+      console.error('Ошибка экспорта:', error);
+      alert('Ошибка при экспорте в Excel');
+    }
+  };
+
+
 
   // Функция загрузки всех сотрудников (контактов)
   const fetchContacts = async () => {
@@ -309,9 +365,17 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
         {/* Заголовок модального окна */}
         <div className="modal-header">
           <h3 style={{ margin: 0 }}>Контакты сотрудников</h3>
+
+          <div>
+          {/* КНОПКА ЭКСПОРТА */}
+          <button className="factory-button" onClick={handleExportContacts}>
+            💾 Сохранить в Excel
+          </button>
+
           <button onClick={onClose}>×</button>
+          </div>
+
         </div>
-        
         {/* Тело модального окна */}
         <div className="modal-body" style={{ 
           height: 'calc(100% - 60px)',
@@ -327,6 +391,7 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
           {!loading && !error && (
             <div className="ag-theme-quartz" style={{ height: '100%', width: '100%' }}>
               <AgGridReact
+                ref={gridRef}  // Для экспорта в Excel
                 localeText={RU_LOCALE_TEXT} // Русская локализация для AG Grid
                 rowData={contacts}
                 columnDefs={columnDefs}

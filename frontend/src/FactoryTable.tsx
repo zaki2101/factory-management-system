@@ -48,12 +48,13 @@ interface Factory {
   at_work: string;
 }
 
-  // хук состояния React
+  /* хук состояния React
   // rowData — переменная, которая хранит текущие данные таблицы (локальные данные, которые уже загружены в память браузера)
   // setRowData — функция для обновления этих данных
   // useState<Factory[]>([]) — инициализирует состояние:
   // <Factory[]> — тип данных: массив объектов Factory
   // [] — начальное значение: пустой массив
+  */
 const FactoryTable: React.FC<FactoryTableProps> = ({ 
   activityTypeNames, 
   managerNames,
@@ -100,8 +101,29 @@ const FactoryTable: React.FC<FactoryTableProps> = ({
         return;
       }
 
-      // Создаем Excel файл
-      const worksheet = XLSX.utils.json_to_sheet(filteredData);
+      // ПРЕОБРАЗУЕМ ДАННЫЕ: заменяем английские ключи на русские названия
+      const dataWithRussianHeaders = filteredData.map(factory => ({
+        'Менеджер': factory.manager,
+        'В работе': factory.at_work,
+        'Вид деятельности': factory.type_factory,
+        'Город': factory.city,
+        'Наименование предприятия': factory.name,
+        'ИНН': factory.inn,
+        'Адрес': factory.address,
+        'Кол-во сотрудников': factory.n_empl,
+        'ОКВЭД': factory.okved,
+        'Email': factory.emails,
+        'Сайт': factory.website,
+        'Телефоны': factory.phones,
+        'Доп. контакты': factory.add_contacts,
+        'Комментарий 1': factory.comment1,
+        'Комментарий 2': factory.comment2,
+        'Комментарий 3': factory.comment3,
+        'Дата записи': factory.date_created
+      }));
+
+      // Создаем Excel с русскими заголовками
+      const worksheet = XLSX.utils.json_to_sheet(dataWithRussianHeaders);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Предприятия");
     
@@ -308,7 +330,7 @@ const FactoryTable: React.FC<FactoryTableProps> = ({
 
     // НКнопка "i" для просмотра сотрудников
     {
-      headerName: '👥', // Заголовок-иконка
+      headerName: 'ℹ️ ', // Заголовок-иконка
       width: 60,
       cellRenderer: (params: any) => (
         <button
