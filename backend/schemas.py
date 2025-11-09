@@ -34,6 +34,7 @@ class FactoryCreate(BaseModel):
     comment4: Optional[str] = None
     date_created: Optional[date] = None
     at_work: Optional[str] = None
+    date_in_work: Optional[str] = None
 
 
     #@validator('type_factory')

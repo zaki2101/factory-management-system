@@ -46,6 +46,7 @@ interface Factory {
   comment4: string;
   date_created: string;
   at_work: string;
+  date_in_work: string | null;
 }
 
   /* хук состояния React
@@ -313,6 +314,15 @@ const FactoryTable: React.FC<FactoryTableProps> = ({
       cellEditorParams: {
         values: managerNames                   // ← Из справочника менеджеров
       }
+    },
+
+    { 
+      field: 'date_in_work', 
+      headerName: 'Закр. до', 
+      width: 120, 
+      sortable: true, 
+      filter: true,
+      editable: true
     },
 
     {

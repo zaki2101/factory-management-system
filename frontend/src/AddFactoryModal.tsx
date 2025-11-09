@@ -70,8 +70,11 @@ const AddFactoryModal: React.FC<AddFactoryModalProps> = ({
       <div className="modal-content">
         
         {/* Заголовок модального окна */}
-        <h3>Добавить новое предприятие</h3>
-        
+        <div className="modal-header">
+          <h3>Добавить новое предприятие</h3>
+          <button onClick={onClose} >×</button>
+        </div>
+
         {/* Форма для ввода данных */}
         <form onSubmit={handleSubmit}>
           
@@ -82,13 +85,7 @@ const AddFactoryModal: React.FC<AddFactoryModalProps> = ({
             {/* ПОЛЯ ДЛЯ ВВОДА */}
 
             {/* required - не может быть пустым */}  
-            {/*<input
-              placeholder="Менеджер *"        
-              value={formData.manager}         
-              onChange={(e) => setFormData({...formData, manager: e.target.value})}
-              required                        
-            />
-            */}
+            
             <select
               value={formData.manager}
               onChange={(e) => setFormData({...formData, manager: e.target.value})}
