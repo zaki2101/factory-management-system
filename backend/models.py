@@ -10,7 +10,7 @@ class Factory(Base):  # Таблица "Предприятия"
     __tablename__ = "factories"  #  название таблицы
     
     id = Column(Integer, primary_key=True)
-    manager = Column(String, index=True)
+    manager = Column(String, index=True, nullable=False)
     city = Column(String, nullable=True)
     name = Column(String)
     inn = Column(String, index=True, unique=True)
@@ -65,7 +65,10 @@ class Manager(Base):  # Модель "Менеджеры"
     manager_name = Column(String, unique=True, nullable=False)  
     manager_phone = Column(String, nullable=True)
     manager_email = Column(String, nullable=True)  
-    manager_comment = Column(String, nullable=True)         
+    manager_comment = Column(String, nullable=True)  
+    login = Column(String, nullable=True)
+    password = Column(String, nullable=True)  
+    role = Column(String, default="user")       
 
 
     '''

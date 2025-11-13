@@ -13,6 +13,9 @@ interface Manager {
   manager_phone: string | null;
   manager_email: string | null;
   manager_comment: string | null;
+  login: string | null;
+  password: string | null;
+  role: string;  // 'admin' | 'user'
 }
 
 interface ManagersModalProps {
@@ -27,7 +30,10 @@ const ManagersModal: React.FC<ManagersModalProps> = ({ onClose }) => {
     manager_name: '',
     manager_phone: '',
     manager_email: '',
-    manager_comment: ''
+    manager_comment: '',
+    login: '',
+    password: '', 
+    role: 'user'
   });
 
   // Загрузка списка менеджеров
@@ -48,7 +54,7 @@ const ManagersModal: React.FC<ManagersModalProps> = ({ onClose }) => {
   // Добавление нового менеджера
   const handleAddManager = async () => {
     if (!newManager.manager_name.trim()) {
-      alert('Введите название вида деятельности');
+      alert('Введите менеджера');
       return;
     }
 
@@ -60,7 +66,10 @@ const ManagersModal: React.FC<ManagersModalProps> = ({ onClose }) => {
           manager_name: newManager.manager_name,
           manager_phone: newManager.manager_phone || null,
           manager_email: newManager.manager_email || null,
-          manager_comment: newManager.manager_comment || null
+          manager_comment: newManager.manager_comment || null,
+          login: newManager.login || null,
+          password: newManager.password || null,
+          role: newManager.role || 'user'
         })
       });
 
@@ -69,7 +78,8 @@ const ManagersModal: React.FC<ManagersModalProps> = ({ onClose }) => {
         throw new Error(errorData.detail || 'Ошибка при добавлении');
       }
 
-      setNewManager({ manager_name: '', manager_phone: '', manager_email: '', manager_comment: '' });
+      setNewManager({ manager_name: '', manager_phone: '', manager_email: '', manager_comment: '',
+        login: '', password: '', role: 'user'});
       await fetchManagers();
       
     } catch (err) {
@@ -88,7 +98,10 @@ const ManagersModal: React.FC<ManagersModalProps> = ({ onClose }) => {
           manager_name: params.data.manager_name,
           manager_phone: params.data.manager_phone,
           manager_email: params.data.manager_email,
-          manager_comment: params.data.manager_comment
+          manager_comment: params.data.manager_comment,
+          login: params.data.login,
+          password: params.data.password, 
+          role: params.data.role
         })
       });
 
@@ -131,15 +144,43 @@ const ManagersModal: React.FC<ManagersModalProps> = ({ onClose }) => {
     { 
       field: 'manager_name', 
       headerName: 'ФИО', 
-      width: 350, 
+      width: 250, 
       sortable: true, 
       filter: true,
       editable: true 
     },
     { 
+      field: 'login', 
+      headerName: 'Логин', 
+      width: 200, 
+      editable: true,
+      sortable: true,
+      filter: true
+    },
+    { 
+      field: 'password', 
+      headerName: 'Пароль', 
+      width: 200, 
+      editable: true,
+      sortable: false, 
+      filter: false
+    },
+    { 
+      field: 'role', 
+      headerName: 'Роль', 
+      width: 100,
+      editable: true,
+      cellEditor: 'agSelectCellEditor',
+      cellEditorParams: {
+        values: ['user', 'admin']  // ← варианты выбора
+      },
+      sortable: true,
+      filter: true
+    },
+    { 
       field: 'manager_phone', 
       headerName: 'Телефон', 
-      width: 150, 
+      width: 200, 
       sortable: false, 
       filter: false,
       editable: true 
@@ -147,7 +188,7 @@ const ManagersModal: React.FC<ManagersModalProps> = ({ onClose }) => {
     { 
       field: 'manager_email', 
       headerName: 'Email', 
-      width: 150, 
+      width: 200, 
       sortable: false, 
       filter: false,
       editable: true 
@@ -155,7 +196,7 @@ const ManagersModal: React.FC<ManagersModalProps> = ({ onClose }) => {
     { 
       field: 'manager_comment', 
       headerName: 'Комментарий', 
-      width: 150, 
+      width: 200, 
       sortable: false, 
       filter: false,
       editable: true 
@@ -182,7 +223,7 @@ const ManagersModal: React.FC<ManagersModalProps> = ({ onClose }) => {
 
   return (
     <div className="modal-overlay"> {/* фон модального окна */}
-      <div className="modal-content" style={{width: '65vw'}}> {/* модальное окно */}
+      <div className="modal-content-big"> {/* модальное окно */}
         <div className="modal-header"> {/* шапка */}
           <h3 style={{ margin: 0 }}>Справочник Менеджеры</h3>
           <button onClick={onClose}>×</button>
@@ -197,6 +238,26 @@ const ManagersModal: React.FC<ManagersModalProps> = ({ onClose }) => {
                 onChange={(e) => setNewManager({...newManager, manager_name: e.target.value})}
                 style={{ padding: '8px', flex: 1 }}
               />
+              <input
+                placeholder="Логин"
+                value={newManager.login}
+                onChange={(e) => setNewManager({...newManager, login: e.target.value})}
+                style={{ padding: '8px', flex: 1 }}
+              />
+              <input
+                placeholder="Пароль"
+                value={newManager.password}
+                onChange={(e) => setNewManager({...newManager, password: e.target.value})}
+                style={{ padding: '8px', flex: 1 }}
+              />
+              <select
+                value={newManager.role}
+                onChange={(e) => setNewManager({...newManager, role: e.target.value})}
+                style={{ padding: '8px', flex: 1 }}
+              >
+                <option value="user">Пользователь</option>
+                <option value="admin">Администратор</option>
+              </select>
               <input
                 placeholder="Телефон (необязательно)"
                 value={newManager.manager_phone}

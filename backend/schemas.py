@@ -94,6 +94,9 @@ class ManagerCreate(BaseModel):
     manager_phone: Optional[str] = None
     manager_email: Optional[str] = None
     manager_comment: Optional[str] = None
+    login: Optional[str] = None
+    password: Optional[str] = None
+    role: Optional[str] = "user"
 
 class Manager(ManagerCreate):
     id: int
