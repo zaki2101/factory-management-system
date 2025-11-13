@@ -273,7 +273,19 @@
 }
 
 
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 
+.login-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 300px;
+}
 
 
 

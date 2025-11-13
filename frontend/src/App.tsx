@@ -10,6 +10,8 @@ import ManagersModal from './ManagersModal'; // подключение мода�
 
 import { Factory } from './FactoryTable';
 import ContactsModal from './ContactsModal'; // подключение модального окна по конпке Контакты
+import LoginPage from './LoginPage';
+
 import './App.css';
 
 /*<FactoryTable 
@@ -24,6 +26,10 @@ import './App.css';
 
 
 function App() {
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userData, setUserData] = useState(null); // пока не используется
+
   // Создание состояния для модального окна
   // isAddModalOpen хранит true/false (открыто/закрыто окно)
   //  setIsAddModalOpen меняет это значение
@@ -67,14 +73,6 @@ function App() {
     }
   };
 
-  /*
-  // Загружаем один раз при запуске
-  useEffect(() => {
-    fetchActivityTypes();
-  }, []);
-
-*/
-
 
   const fetchManagers = async () => {
     try {
@@ -92,9 +90,52 @@ function App() {
 
   // Загружаем один раз при запуске
   useEffect(() => {
+    // Проверка авторизации
+    const token = localStorage.getItem('token');
+    const savedUserData = localStorage.getItem('userData');
+  
+    if (token && savedUserData) {
+      checkAuth(token);
+    }
+
     fetchActivityTypes();
     fetchManagers();
   }, []);
+
+
+  /** checkAuth
+    * Проверка валидности JWT токена при загрузке приложения
+    * 
+    * 1. Отправляет токен на /auth/me для проверки
+    * 2. Если токен валидный - устанавливает пользователя и переводит в авторизованное состояние
+    * 3. Если токен невалидный (истек или подделан) - очищает localStorage
+     * 
+    * Зачем нужна:
+    * - Предотвращает доступ с просроченным токеном
+    * - Обеспечивает безопасность при перезагрузке страницы
+    * - Автоматический выход при истечении сессии
+    */
+  const checkAuth = async (token: string) => {
+    try {
+      const response = await fetch('http://localhost:8000/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    
+      if (response.ok) {
+        const userData = await response.json();
+        setUserData(userData);
+        setIsAuthenticated(true);
+      } else {
+        // Токен невалидный - очищаем хранилище
+        localStorage.removeItem('token');
+        localStorage.removeItem('userData');
+      }
+    } catch (error) {
+      console.error('Ошибка проверки авторизации:', error);
+    }
+  };
 
 
   // Функция открытия модального окна справочника видов деятельности
@@ -109,88 +150,81 @@ function App() {
 
   // onClick={() => setIsAddModalOpen(true)} меняет состояние на true → открывает модальное окно
   return (
-    <div className="App">
-      {/* Сообщение об ошибке */}
-      {error && <div className="error-message">{error}</div>}
+  <div className="App">
+    {isAuthenticated ? (
+      <>
+        {/* Сообщение об ошибке */}
+        {error && <div className="error-message">{error}</div>}
 
-      <FactoryTable 
-        activityTypeNames={activityTypeNames} 
-        managerNames={managerNames}
-        onOpenAddModal={() => setIsAddModalOpen(true)}
-        onOpenActivityTypesModal={handleOpenActivityTypesModal}
-        onOpenManagersModal={handleOpenManagersModal}
-        onOpenContactsModal={handleOpenContactsModal}
-      />
-      {/* activityTypeNames - список видов деятельности
-          managerNames - список менеджеров. */}  
+        <FactoryTable 
+          activityTypeNames={activityTypeNames} 
+          managerNames={managerNames}
+          onOpenAddModal={() => setIsAddModalOpen(true)}
+          onOpenActivityTypesModal={handleOpenActivityTypesModal}
+          onOpenManagersModal={handleOpenManagersModal}
+          onOpenContactsModal={handleOpenContactsModal}
+        />
 
-      {/* Модальное окно добавления фабрики */}
-      {isAddModalOpen && (
-        /* Условный рендеринг модального окна
-          Показываем модальное окно только если isAddModalOpen === true
-          onClose — закрывает окно (меняет состояние на false)
-          onSave — вызывается при сохранении (пока просто логируем и закрываем окно)
-        Принцип работы:
-          1. Клик по кнопке → isAddModalOpen становится true
-          2. React перерисовывает компонент → появляется модальное окно
-          3. Закрытие/сохранение → isAddModalOpen становится false
-          4. React перерисовывает компонент → модальное окно исчезает
-        */
-        <AddFactoryModal
-          activityTypeNames={activityTypeNames}  // ← Только названия
-          managerNames={managerNames} 
-          onClose={() => !isLoading && setIsAddModalOpen(false)} 
-          onSave={async (newFactory: Omit<Factory, 'id'> ) => {
-            try {
-              // 1. Сначала проверяем ИНН
-              const checkResponse = await fetch(`http://localhost:8000/factories/inn/${newFactory.inn}`);
-              if (checkResponse.ok) {
-                // 2. Если ИНН существует - показываем ошибку и остаемся в форме
-                alert('Предприятие с таким ИНН уже существует!');
-                return; // ← Не закрываем модальное окно
-              }
-              // 3. Если ИНН свободен - сохраняем
-              const saveResponse = await fetch('http://localhost:8000/factories/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newFactory)
-              })
-
-              if (saveResponse.ok) {
-                console.log('Предприятие добавлено:');
-                window.location.reload(); 
-              }
+        {/* Модальное окно добавления фабрики */}
+        {isAddModalOpen && (
+          <AddFactoryModal
+            activityTypeNames={activityTypeNames}
+            managerNames={managerNames} 
+            onClose={() => !isLoading && setIsAddModalOpen(false)} 
+            onSave={async (newFactory: Omit<Factory, 'id'> ) => {
+              try {
+                const checkResponse = await fetch(`http://localhost:8000/factories/inn/${newFactory.inn}`);
+                if (checkResponse.ok) {
+                  alert('Предприятие с таким ИНН уже существует!');
+                  return;
+                }
               
-            } catch (error) {
-              console.error('Ошибка:', error);
-            }
+                const saveResponse = await fetch('http://localhost:8000/factories/', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(newFactory)
+                })
+                if (saveResponse.ok) {
+                  console.log('Предприятие добавлено:');
+                  window.location.reload(); 
+                }
+              } catch (error) {
+                console.error('Ошибка:', error);
+              }
+              setIsAddModalOpen(false);
+            }}
+            isLoading={isLoading} 
+          />
+        )}
+        
+        {/* модальное окно справочника видов деятельности */}
+        {isActivityTypesModalOpen && (
+          <ActivityTypesModal
+            onClose={() => setIsActivityTypesModalOpen(false)}
+          />
+        )}
 
-            setIsAddModalOpen(false);
-          }}
-          isLoading={isLoading} 
-        />
-      )}
-      
-      {/* модальное окно справочника видов деятельности */}
-      {isActivityTypesModalOpen && (
-        <ActivityTypesModal
-          onClose={() => setIsActivityTypesModalOpen(false)}
-        />
-      )}
+        {/* модальное окно справочника менеджеров */}
+        {isManagersModalOpen && (
+          <ManagersModal
+            onClose={() => setIsManagersModalOpen(false)}
+          />
+        )}
 
-      {/* модальное окно справочника менеджеров */}
-      {isManagersModalOpen && (
-        <ManagersModal
-          onClose={() => setIsManagersModalOpen(false)}
-        />
-      )}
-
-      {/* рендеринг модального окна Контакты */}
-      {isContactsModalOpen && (
-        <ContactsModal onClose={() => setIsContactsModalOpen(false)} />
-      )}
-    </div>
-  );
+        {/* рендеринг модального окна Контакты */}
+        {isContactsModalOpen && (
+          <ContactsModal onClose={() => setIsContactsModalOpen(false)} />
+        )}
+      </>
+    ) : (
+      // Страница логина
+      <LoginPage onLogin={(userData) => {
+        setUserData(userData);
+        setIsAuthenticated(true);
+      }} />
+    )}
+  </div>
+);
 }
 
 export default App;

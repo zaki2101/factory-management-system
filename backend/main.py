@@ -1,9 +1,12 @@
 # ядро приложения (роуты и зависимоти) - обработка HTTP запросов
 
 # Стандартные библиотеки Python
-from datetime import datetime
+from datetime import datetime, timedelta
 import io
 from typing import Optional
+import jwt
+
+from pydantic import BaseModel
 
 # FastAPI и зависимости
 from fastapi import FastAPI, Depends, HTTPException
@@ -14,11 +17,18 @@ from sqlalchemy.orm import Session
 
 # Сторонние библиотеки
 from openpyxl import Workbook
+from datetime import datetime, timedelta
 
 # Наши модули
 import models, schemas, crud
 from database import SessionLocal, engine
+from schemas import LoginRequest, LoginResponse  # ← импортируем из schemas.py
+from models import Manager
 
+
+# Секретный ключ для JWT (в продакшене хранить в переменных окружения)
+JWT_SECRET = "your-secret-key-here"  # ← заменить на сложный ключ!
+JWT_ALGORITHM = "HS256"
 
 
 # Создаем таблицы в базе данных
@@ -83,9 +93,10 @@ def create_factory(factory: schemas.FactoryCreate, db: Session = Depends(get_db)
 #    return db_factory
 
 
-# Редактирование
+''' Редактирование
 # FastAPI принимает запрос от обработчика ячейки в AG Grid 
 #  после CRUD функция обновляет запись
+'''
 @app.put("/factories/{factory_id}", response_model=schemas.Factory)
 def update_factory(
     factory_id: int, 
@@ -423,3 +434,85 @@ def update_manager(
 def read_all_employees(db: Session = Depends(get_db)):
     employees = crud.get_all_employees(db)
     return employees
+
+##########################################
+# АВТОРИЗАЦИЯ
+'''
+Как будет работать:
+1. Вход → Логин/пароль → Сервер проверяет → Выдает токен
+    Токен = Электронный пропуск
+        Содержит данные: логин, роль, ФИО, срок действия
+        Подписан цифровой подписью - нельзя подделать
+        Самодостаточный - все данные внутри него
+
+2. Доступ → Frontend отправляет токен с каждым запросом
+3. Проверка → Сервер читает данные из токена (не из БД)
+
+Пример:
+ПОЛЬЗОВАТЕЛЬ: Логин "ivanov" → 
+СЕРВЕР: Проверяет пароль → 
+СОЗДАЕТ ТОКЕН: "ivanov, admin, Иванов, срок: 24ч" →
+FRONTEND: Сохраняет токен →
+ДАЛЬШЕ: Шлет токен с каждым запросом
+
+Преимущества:
+✅ Быстро (сервер не лезет в БД при каждом запросе)
+✅ Безопасно (пароль не передается постоянно)
+✅ Масштабируется (подходит для многих пользователей)
+'''
+
+
+
+@app.post("/auth/login", response_model=LoginResponse)
+async def login(login_data: LoginRequest, db: Session = Depends(get_db)):
+    # 1. db.query(Manager) - Ищем пользователя по логину в таблице managers
+    user = db.query(Manager).filter(Manager.login == login_data.login).first()
+    
+    # 2. Если пользователь не найден - ошибка
+    if not user:
+        raise HTTPException(status_code=401, detail="Неверный логин или пароль")
+    
+    # 3. Проверяем пароль (пока в чистом виде)
+    if user.password != login_data.password:
+        raise HTTPException(status_code=401, detail="Неверный логин или пароль")
+    
+    # 4. Генерируем JWT токен (jwt.encode() - создаем JWT токен с данными пользователя)
+    token_data = {
+        "login": user.login,
+        "role": user.role,
+        "manager_name": user.manager_name,
+        "exp": datetime.utcnow() + timedelta(hours=24)  # токен на 24 часа
+    }
+    token = jwt.encode(token_data, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    
+    # 5. Возвращаем токен и данные пользователя
+    return LoginResponse(
+        token=token,
+        user_data={
+            "login": user.login,
+            "manager_name": user.manager_name,
+            "role": user.role
+        }
+    )
+
+
+@app.get("/auth/me")
+async def get_current_user(token: str):
+    try:
+        # 1. jwt.decode() - проверяем подпись и декодируем токен
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        
+        # 2. Проверяем не истек ли токен (payload["exp"])
+        if datetime.utcnow() > datetime.fromtimestamp(payload["exp"]):
+            raise HTTPException(status_code=401, detail="Токен истек")
+        
+        # 3. Возвращаем данные пользователя без запроса к БД
+        return {
+            "login": payload["login"],
+            "manager_name": payload["manager_name"], 
+            "role": payload["role"]
+        }
+
+    # обработка ошибок    
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Неверный токен")

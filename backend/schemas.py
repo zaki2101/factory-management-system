@@ -36,13 +36,7 @@ class FactoryCreate(BaseModel):
     at_work: Optional[str] = None
     date_in_work: Optional[str] = None
 
-
-    #@validator('type_factory')
-    #def validate_type_factory(cls, v):
-        #allowed_values = ['ПРОЕКТИРОВАНИЕ', 'ХИМИЯ', 'ФАРМАЦЕВТИКА']
-        #if v not in allowed_values:
-        #    raise ValueError(f'Тип производства должен быть одним из: {allowed_values}')
-        #return 
+   
 
 # Схема для возврата данных из БД
 class Factory(FactoryCreate):
@@ -103,3 +97,13 @@ class Manager(ManagerCreate):
     
     class Config:
         from_attributes = True
+
+
+# Схемы для логина
+class LoginRequest(BaseModel):  # данные для входа (логин/пароль)
+    login: str
+    password: str
+
+class LoginResponse(BaseModel):  # ответ после успешного логина (токен + данные пользователя)
+    token: str
+    user_data: dict  # {login, manager_name, role}
