@@ -143,6 +143,18 @@ const FactoryTable: React.FC<FactoryTableProps> = ({
   };
 
 
+  // Функция для обновления данных таблицы (внутренняя функция)
+  const refreshTableData = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/all-factories/');
+      if (response.ok) {
+        const data = await response.json();
+        setRowData(data);
+      }
+    } catch (error) {
+      console.error('Ошибка обновления данных:', error);
+    }
+  };
 
 
   // Функция удаления
@@ -158,7 +170,8 @@ const FactoryTable: React.FC<FactoryTableProps> = ({
 
       if (response.ok) {
         alert('Предприятие удалено!');
-        window.location.reload();
+        //window.location.reload(); // перезагрузка
+        await refreshTableData();  // Обновляем таблицу без перезагрузки страницы
       } else {
         alert('Ошибка при удалении');
       }
@@ -192,7 +205,8 @@ const FactoryTable: React.FC<FactoryTableProps> = ({
       if (checkResponse.ok) {
         // ИНН уже существует - отменяем изменение
         alert('Предприятие с таким ИНН уже существует!');
-        window.location.reload(); // ← Перезагружаем страницу
+        //window.location.reload(); // ← Перезагружаем страницу
+        await refreshTableData();  // Обновляем таблицу без перезагрузки страницы
         return;
       }
 
@@ -202,7 +216,8 @@ const FactoryTable: React.FC<FactoryTableProps> = ({
     } catch (error) {
       console.error('Ошибка:', error);
       alert('Ошибка при проверке ИНН');
-      window.location.reload(); // ← Перезагружаем при ошибке
+      //window.location.reload(); // ← Перезагружаем при ошибке
+      await refreshTableData();  // Обновляем таблицу без перезагрузки страницы
     }
   
   };
@@ -220,7 +235,8 @@ const FactoryTable: React.FC<FactoryTableProps> = ({
         // Если сервер вернул ошибку 
         //const errorData = await response.json();
         alert(`Ошибка сохранения. Недопустимое значение!`);
-        window.location.reload(); // ← Перезагружаем при ЛЮБОЙ ошибке
+        //window.location.reload(); // ← Перезагружаем при ЛЮБОЙ ошибке
+        await refreshTableData();  // Обновляем таблицу без перезагрузки страницы
         return;
       }
 
@@ -228,7 +244,8 @@ const FactoryTable: React.FC<FactoryTableProps> = ({
     } catch (error) {
       console.error('Ошибка сохранения:', error);
       alert('Ошибка при сохранении изменений');
-      window.location.reload();
+      //window.location.reload();
+      await refreshTableData();  // Обновляем таблицу без перезагрузки страницы
     }
     };
    
