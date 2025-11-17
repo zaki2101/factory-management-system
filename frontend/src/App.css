@@ -12,7 +12,7 @@
   /*justify-content: space-between; /* Распределяем элементы по ширине */
   align-items: center;           /* Выравниваем по вертикали по центру */
   padding: 10px;                /* Внутренние отступы  со всех сторон */
-  background-color: #ecdddd;    /* Светло-серый фон #f5f5f5; */
+  background-color: #f5f5f5;    /* Светло-серый фон #f5f5f5; */
   border-bottom: 1px solid #ddd; /* Серая линия под шапкой */
   margin-bottom: 5px; /* ← Отступ снизу */
   gap: 10px;

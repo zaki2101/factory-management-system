@@ -167,8 +167,8 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({ factoryInn, factoryName
           return params.value === "+" ? "✅" : "□";
         },
         cellStyle: { 
-          'cursor': 'pointer',
-          'text-align': 'center'
+          cursor: 'pointer',
+          textAlign: 'center'
         },
         onCellClicked: (params: any) => {
           handleLeadToggle(params.data.id, params.data.lead);
@@ -219,9 +219,9 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({ factoryInn, factoryName
         filter: true,
         editable: true,
         cellStyle: { 
-          'white-space': 'normal',  // ← Разрешает перенос строк
-          'line-height': '1.4',      // ← Увеличивает межстрочный интервал
-          'text-align': 'left',  // ← Выравнивание по левому краю
+          whiteSpace: 'normal',  // ← Разрешает перенос строк
+          lineHeight: '1.4',      // ← Увеличивает межстрочный интервал
+          textAlign: 'left',  // ← Выравнивание по левому краю
         },
         autoHeight: true,           // ← Автоматическая высота строки (для многострочного текста)
         cellEditor: 'agLargeTextCellEditor',
@@ -242,9 +242,9 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({ factoryInn, factoryName
         filter: true,
         editable: true,
         cellStyle: { 
-          'white-space': 'normal',  // ← Разрешает перенос строк
-          'line-height': '1.4',      // ← Увеличивает межстрочный интервал
-          'text-align': 'left',  // ← Выравнивание по левому краю
+          whiteSpace: 'normal',  // ← Разрешает перенос строк
+          lineHeight: '1.4',      // ← Увеличивает межстрочный интервал
+          textAlign: 'left',  // ← Выравнивание по левому краю
         },
         autoHeight: true,
         cellEditor: 'agLargeTextCellEditor',
@@ -262,9 +262,9 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({ factoryInn, factoryName
         filter: true,
         editable: true,
         cellStyle: { 
-          'white-space': 'normal',  // ← Разрешает перенос строк
-          'line-height': '1.4',
-          'text-align': 'left',  // ← Выравнивание по левому краю
+          whiteSpace: 'normal',  // ← Разрешает перенос строк
+          lineHeight: '1.4',
+          textAlign: 'left',  // ← Выравнивание по левому краю
         },
         autoHeight: true,
         cellEditor: 'agLargeTextCellEditor',

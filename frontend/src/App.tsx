@@ -14,26 +14,12 @@ import LoginPage from './LoginPage';
 
 import './App.css';
 
-/*<FactoryTable 
-  activityTypeNames={activityTypeNames} 
-  managerNames={managerNames}
-  onOpenAddModal={() => setIsAddModalOpen(true)}
-  onOpenActivityTypesModal={handleOpenActivityTypesModal}
-  onOpenManagersModal={handleOpenManagersModal}
-  onOpenContactsModal={handleOpenContactsModal}
-/>
-*/
 
 
 function App() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userData, setUserData] = useState(null); // пока не используется
-
-  // Создание состояния для модального окна
-  // isAddModalOpen хранит true/false (открыто/закрыто окно)
-  //  setIsAddModalOpen меняет это значение
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const [isLoading] = useState(false);
   const [error] = useState<string | null>(null);
@@ -159,43 +145,11 @@ function App() {
         <FactoryTable 
           activityTypeNames={activityTypeNames} 
           managerNames={managerNames}
-          onOpenAddModal={() => setIsAddModalOpen(true)}
           onOpenActivityTypesModal={handleOpenActivityTypesModal}
           onOpenManagersModal={handleOpenManagersModal}
           onOpenContactsModal={handleOpenContactsModal}
         />
 
-        {/* Модальное окно добавления фабрики */}
-        {isAddModalOpen && (
-          <AddFactoryModal
-            activityTypeNames={activityTypeNames}
-            managerNames={managerNames} 
-            onClose={() => !isLoading && setIsAddModalOpen(false)} 
-            onSave={async (newFactory: Omit<Factory, 'id'> ) => {
-              try {
-                const checkResponse = await fetch(`http://localhost:8000/factories/inn/${newFactory.inn}`);
-                if (checkResponse.ok) {
-                  alert('Предприятие с таким ИНН уже существует!');
-                  return;
-                }
-              
-                const saveResponse = await fetch('http://localhost:8000/factories/', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(newFactory)
-                })
-                if (saveResponse.ok) {
-                  console.log('Предприятие добавлено:');
-                  window.location.reload(); 
-                }
-              } catch (error) {
-                console.error('Ошибка:', error);
-              }
-              setIsAddModalOpen(false);
-            }}
-            isLoading={isLoading} 
-          />
-        )}
         
         {/* модальное окно справочника видов деятельности */}
         {isActivityTypesModalOpen && (

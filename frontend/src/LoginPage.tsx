@@ -66,9 +66,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
       const data: LoginResponse = await response.json();
     
       // 4. Сохраняем в localStorage
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userData', JSON.stringify(data.user_data));
+      //localStorage.setItem('token', data.token);
+      //localStorage.setItem('userData', JSON.stringify(data.user_data));
     
+      sessionStorage.setItem('token', data.token);
+      sessionStorage.setItem('userData', JSON.stringify(data.user_data));
+
+
       // 5. Вызываем колбэк успешного логина
       onLogin(data.user_data);
     

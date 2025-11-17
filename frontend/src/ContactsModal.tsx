@@ -251,8 +251,8 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
       },
       // Делаем ячейку кликабельной
       cellStyle: { 
-        'cursor': 'pointer', //меняет курсор на "руку" при наведении
-        'text-align': 'center' // центрирует галочку в ячейке
+        cursor: 'pointer', //меняет курсор на "руку" при наведении
+        textAlign: 'center' // центрирует галочку в ячейке
       },
       // обрабатывает клик по ячейке и вызывает функцию переключения
       onCellClicked: (params: any) => {
@@ -302,9 +302,9 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
       filter: true,
       editable: true,
       cellStyle: { 
-        'white-space': 'normal',  // ← Разрешает перенос строк
-        'line-height': '1.4',      // ← Увеличивает межстрочный интервал
-        'text-align': 'left',  // ← Выравнивание по левому краю
+        whiteSpace: 'normal',  // ← Разрешает перенос строк
+        lineHeight: '1.4',      // ← Увеличивает межстрочный интервал
+        textAlign: 'left',  // ← Выравнивание по левому краю
       },
       autoHeight: true,           // ← Автоматическая высота строки (для многострочного текста)
       cellEditor: 'agLargeTextCellEditor',
@@ -325,9 +325,9 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
       filter: true,
       editable: true,
       cellStyle: { 
-        'white-space': 'normal',  // ← Разрешает перенос строк
-        'line-height': '1.4',      // ← Увеличивает межстрочный интервал
-        'text-align': 'left',  // ← Выравнивание по левому краю
+        whiteSpace: 'normal',  // ← Разрешает перенос строк
+        lineHeight: '1.4',      // ← Увеличивает межстрочный интервал
+        textAlign: 'left',  // ← Выравнивание по левому краю
       },
       autoHeight: true,
       cellEditor: 'agLargeTextCellEditor',
@@ -345,9 +345,9 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
       filter: true,
       editable: true,
       cellStyle: { 
-        'white-space': 'normal',  // ← Разрешает перенос строк
-        'line-height': '1.4',
-        'text-align': 'left',  // ← Выравнивание по левому краю
+        whiteSpace: 'normal',  // ← Разрешает перенос строк
+        lineHeight: '1.4',
+        textAlign: 'left',  // ← Выравнивание по левому краю
       },
       autoHeight: true,
       cellEditor: 'agLargeTextCellEditor',
@@ -404,7 +404,7 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
                   filter: true,
                   editable: false,  
                   cellStyle: { 
-                    'border-bottom': '1px solid #ddd'  // ← Граница снизу  
+                    borderBottom: '1px solid #ddd'  // ← Граница снизу  
                   }
                 }}
                 enableCellTextSelection={true}

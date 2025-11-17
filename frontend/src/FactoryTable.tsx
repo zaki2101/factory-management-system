@@ -8,6 +8,8 @@ import * as XLSX from 'xlsx';  // Библиотека для работы с Ex
 //import 'ag-grid-community/styles/ag-theme-quartz.css'; // ← Тема Quartz
 
 import EmployeesModal from './EmployeesModal'; // Импортируем компонент модального окна 
+import AddFactoryModal from './AddFactoryModal'; // Импортируем компонент модального окна добавления фабрики
+
 import { RU_LOCALE_TEXT } from './agGridRussian'; // Русская локализация для AG Grid
 
 import { ModuleRegistry, AllCommunityModule} from 'ag-grid-community';
@@ -20,7 +22,6 @@ interface FactoryTableProps {
   managerNames: string[];  // Пропс со списком менеджеров
 
   // пропсы для модальных окон
-  onOpenAddModal: () => void;
   onOpenActivityTypesModal: () => void;
   onOpenManagersModal: () => void;
   onOpenContactsModal: () => void;
@@ -59,7 +60,6 @@ interface Factory {
 const FactoryTable: React.FC<FactoryTableProps> = ({ 
   activityTypeNames, 
   managerNames,
-  onOpenAddModal,
   onOpenActivityTypesModal, 
   onOpenManagersModal,
   onOpenContactsModal
@@ -81,6 +81,47 @@ const FactoryTable: React.FC<FactoryTableProps> = ({
   Для изменения цвета строки при изменении поля at_work
   */
   const gridRef = useRef<AgGridReact>(null); // Создаем "пульт" для управления таблицей
+
+  /* Состояния для модального окна добавления фабрики
+   * isAddModalOpen хранит true/false (открыто/закрыто окно)
+   * setIsAddModalOpen меняет это значение */
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false);
+
+
+  // Функция добавления новой фабрики
+  const handleAddFactory = async (newFactory: Omit<Factory, 'id'>) => {setIsLoading(true);
+    try {
+      // 1. Проверяем ИНН
+      const checkResponse = await fetch(`http://localhost:8000/factories/inn/${newFactory.inn}`);
+    
+      if (checkResponse.ok) {
+        // ИНН существует - ошибка
+        alert('Предприятие с таким ИНН уже существует!');
+        return;
+      }
+    
+      // 2. ИНН свободен - сохраняем фабрику
+      const saveResponse = await fetch('http://localhost:8000/factories/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newFactory)
+      });
+    
+      if (saveResponse.ok) {
+        console.log('Предприятие добавлено:');
+        await refreshTableData();
+        setIsAddModalOpen(false);
+      } else {
+        alert('Ошибка при сохранении предприятия');
+      }
+    } catch (error) {
+      console.error('Ошибка:', error);
+      alert('Ошибка при добавлении предприятия');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
 
   // Функция экспорта текущего отфильтрованного вида в Excel
@@ -411,7 +452,7 @@ const FactoryTable: React.FC<FactoryTableProps> = ({
         {/* Кнопка добавления предприятия */}
         <button 
           className="factory-button"
-          onClick={onOpenAddModal}
+          onClick={() => setIsAddModalOpen(true)}  // ← открывает модалку в FactoryTable
         >
           🏢 Добавить предприятие
         </button>
@@ -495,6 +536,18 @@ const FactoryTable: React.FC<FactoryTableProps> = ({
         onClose={() => setIsEmployeesModalOpen(false)}
       />
     )}
+
+    {/* ▽ ДОБАВЛЯЕМ МОДАЛЬНОЕ ОКНО ДОБАВЛЕНИЯ ФАБРИКИ ▽ */}
+    {isAddModalOpen && (
+      <AddFactoryModal
+        activityTypeNames={activityTypeNames}
+        managerNames={managerNames}
+        onClose={() => !isLoading && setIsAddModalOpen(false)}
+        onSave={handleAddFactory}
+        isLoading={isLoading}
+      />
+    )}
+
   </>
   );
 }
