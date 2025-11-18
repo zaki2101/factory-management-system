@@ -1,35 +1,21 @@
-# Подключение к БД и настройка сессий
+# Подключение к БД и настройка сессий# Базовый класс для всех наших будущих моделей (таблиц) создает базовый класс с метаданными
 
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker 
+from dotenv import load_dotenv
 
-# URL для подключения к базе данных (пока используем SQLite для простоты)
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+# Загружаем переменные окружения из .env файла
+load_dotenv()
 
-# Создаем "движок" - точку подключения к БД
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
+# URL базы данных PostgreSQL из переменной окружения
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Создаем фабрику для сессий работы с БД
-# SessionLocal - создает конкретную сессию для одного запроса
-# sessionmaker() создает фабрику сессий - шаблон для создания одинаковых сессий
+# Создаем движок PostgreSQL
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
-''' Настройки контроля над транзакциями
-autocommit=False - изменения не сохраняются автоматически (только через через db.commit(), 
-иначе каждое изменение сразу сохраняется в БД (опасно!))
-
-autoflush=False - не отправлять команды автоматически
-
-bind=engine - привязка к конкретной базе данных
-'''
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
 
 # Базовый класс для всех наших будущих моделей (таблиц) создает базовый класс с метаданными
 Base = declarative_base()
-
-
-
