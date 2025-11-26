@@ -2,13 +2,13 @@
 import React, { useState, useEffect } from 'react'; 
 import FactoryTable from './FactoryTable';
 
-import AddFactoryModal from './AddFactoryModal'; // подключение компонента модального окна
+//import AddFactoryModal from './AddFactoryModal'; // подключение компонента модального окна
 //import ExportModal from './ExportModal'; // подключение модального окна для сохранения предприятий в файл
 
 import ActivityTypesModal from './ActivityTypesModal'; // подключение модального окна видов деятельности
 import ManagersModal from './ManagersModal'; // подключение модального окна менеджеров
 
-import { Factory } from './FactoryTable';
+//import { Factory } from './FactoryTable';
 import ContactsModal from './ContactsModal'; // подключение модального окна по конпке Контакты
 import LoginPage from './LoginPage';
 
@@ -19,9 +19,14 @@ import './App.css';
 function App() {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  /*
+  userData - пока не используется, для отбражения инф о пользователе, 
+  разграничение прав, персонализации
+  */
   const [userData, setUserData] = useState(null); // пока не используется
 
-  const [isLoading] = useState(false);
+  //const [isLoading] = useState(false);
   const [error] = useState<string | null>(null);
 
   // Состояние модального окна видов деятельности

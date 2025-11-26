@@ -290,7 +290,7 @@ const FactoryTable: React.FC<FactoryTableProps> = ({
     }
     };
    
-    //
+    // загрузка при монтировании (один раз)
     useEffect(() => {
       setLoading(true);
       setError(null);
@@ -312,6 +312,20 @@ const FactoryTable: React.FC<FactoryTableProps> = ({
           setLoading(false);
         })  
     }, []);
+
+
+    // Автоматическое обновление данных каждые 60 секунд
+    useEffect(() => {
+      const interval = setInterval(() => {
+        if (!loading) { // Не обновляем во время загрузки
+          refreshTableData();
+        }
+      }, 60000); // 60 секунд
+
+      // Очистка при размонтировании компонента
+      return () => clearInterval(interval);
+    }, [loading]); // Зависит от состояния loading
+
 
     // Обработчик клика по кнопке "i"
     const handleInfoClick = (inn: string, name: string) => {

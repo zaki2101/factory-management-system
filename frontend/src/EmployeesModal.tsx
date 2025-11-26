@@ -66,6 +66,8 @@ const EmployeesModal: React.FC<EmployeesModalProps> = ({ factoryInn, factoryName
   }, [factoryInn, fetchEmployees]);
 
 
+
+  
   // // Обработчик клика для переключения лида - 
   // ВНИМАНИЕ дублирование кода, эта функция используется в ContactsModal
   const handleLeadToggle = async (employeeId: number, currentLead: string) => {

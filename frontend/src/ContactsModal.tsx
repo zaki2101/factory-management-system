@@ -203,6 +203,19 @@ const ContactsModal: React.FC<ContactsModalProps> = ({ onClose }) => {
     fetchContacts();
   }, []);
 
+
+  // Автоматическое обновление контактов каждые 60 секунд
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!loading) {
+        fetchContacts(); // Используем существующую функцию
+      }
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [loading]);
+
+
   // Колонки таблицы AG Grid
   const columnDefs: ColDef[] = [
     // кнопка удаление
